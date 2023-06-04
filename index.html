@@ -22,29 +22,51 @@
           placeholder="Rechercher une recette"
         />
         <img class="search__icon" src="./assets/icons/loupe.svg" />
-        <div class="search__tags">
-          <div class="tag">
-            Coco
-            <img class="tag__icon" src="./assets/icons/cross.svg" />
-          </div>
-        </div>
+        <div class="search__tags"></div>
         <div class="search__filters">
-          <div class="filter">
-            Ingrédients
+          <div class="filter ingredients">
+            <input
+              type="text"
+              name="ingredients"
+              id="filter__ingredients"
+              class="filter__input filter__input--blue"
+              autocomplete="off"
+              placeholder="Ingrédients"
+            />
             <img class="filter__icon" src="./assets/icons/dropdown.svg" />
+            <ul class="filter__list"></ul>
           </div>
-          <div class="filter">
-            Appareils
+          <div class="filter appareils">
+            <input
+              type="text"
+              name="appareils"
+              id="filter__appareils"
+              class="filter__input filter__input--green"
+              autocomplete="off"
+              placeholder="Appareils"
+            />
             <img class="filter__icon" src="./assets/icons/dropdown.svg" />
+            <ul class="filter__list"></ul>
           </div>
-          <div class="filter">
-            Ustensiles
+          <div class="filter ustensiles">
+            <input
+              type="text"
+              name="ustensiles"
+              id="filter__ustensiles"
+              class="filter__input filter__input--red"
+              autocomplete="off"
+              placeholder="Ustensiles"
+            />
             <img class="filter__icon" src="./assets/icons/dropdown.svg" />
+            <ul class="filter__list"></ul>
           </div>
         </div>
       </div>
+      <main>
+        <ul class="recipes"></ul>
+      </main>
     </div>
-    <main></main>
-    <script src="./js/main.js"></script>
+    <script src="./js/search.js" type="module"></script>
+    <script src="./js/utils/tags.js" type="module"></script>
   </body>
 </html>
