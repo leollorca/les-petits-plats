@@ -169,6 +169,7 @@ header {
       }
 
       &__item {
+        width: 160px;
         margin-bottom: 10px;
         padding: 8px 10px;
         font-size: 18px;
@@ -176,6 +177,8 @@ header {
         line-height: 1;
         color: $white;
         border-radius: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         &:hover {
           cursor: pointer;

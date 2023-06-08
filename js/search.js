@@ -101,7 +101,7 @@ function displayAppliances(appliances) {
     applianceTag.innerText = appliance;
     appliancesTag.appendChild(applianceTag);
     applianceTag.addEventListener("click", (event) => {
-      addTag(event.target.innerText, '#ed6454');
+      addTag(event.target.innerText, '#68d9a4');
     });
   });
 }
@@ -116,7 +116,7 @@ function displayUstensils(ustensils) {
     ustensilTag.innerText = ustensil;
     ustensilsTag.appendChild(ustensilTag);
     ustensilTag.addEventListener("click", (event) => {
-      addTag(event.target.innerText, '#68d9a4');
+      addTag(event.target.innerText, '#ed6454');
     });
   });
 }
