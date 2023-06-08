@@ -69,7 +69,7 @@ function inputToFocusState(event) {
     appliancesFilterTag.style.width = "300px";
     appliancesFilterTag.style.borderRadius = "5px";
     appliancesInput.setAttribute("placeholder", "Rechercher un appareil");
-    if (event.target.value && appliancesList.innerHTML) {
+    if (appliancesList.innerHTML) {
       displayList(event);
     }
   }
@@ -77,7 +77,7 @@ function inputToFocusState(event) {
     ustensilsFilterTag.style.width = "300px";
     ustensilsFilterTag.style.borderRadius = "5px";
     ustensilsInput.setAttribute("placeholder", "Rechercher un ustensile");
-    if (event.target.value && ustensilsList.innerHTML) {
+    if (ustensilsList.innerHTML) {
       displayList(event);
     }
   }
@@ -86,30 +86,66 @@ function inputToFocusState(event) {
 function displayList(event) {
   const filterName = event.target.getAttribute("name");
   if (filterName === "ingredients") {
+    if(ingredientsList.children.length > 40) {
+      ingredientsList.style.gridTemplateRows = "repeat(20, 1fr)";
+    } else {
+      ingredientsList.style.gridTemplateRows = "repeat(10, 1fr)";
+    }
     // ingredientsList.style.left = "0";
     ingredientsList.style.opacity = "1";
     ingredientsFilterTag.style.borderRadius = "5px 5px 0 0";
     const accurateListWidth = ingredientsList.getBoundingClientRect().width;
-    ingredientsFilterTag.style.width = `${accurateListWidth}px`;
-    event.target.style.width = `${accurateListWidth}px`;
+    if (accurateListWidth > 300) {
+      ingredientsList.style.display = "grid";
+      ingredientsFilterTag.style.width = `${accurateListWidth}px`;
+      event.target.style.width = `${accurateListWidth}px`;
+    } else {
+      ingredientsList.style.display = "block";
+      ingredientsList.style.width = "300px";
+      event.target.style.width = "300px";
+    }
     event.target.setAttribute("placeholder", "Rechercher un ingrédient");
   }
   if (filterName === "appareils") {
+    if(appliancesList.children.length > 40) {
+      appliancesList.style.gridTemplateRows = "repeat(20, 1fr)";
+    } else {
+      appliancesList.style.gridTemplateRows = "repeat(10, 1fr)";
+    }
     // appliancesList.style.left = "0";
     appliancesList.style.opacity = "1";
     appliancesFilterTag.style.borderRadius = "5px 5px 0 0";
     const accurateListWidth = appliancesList.getBoundingClientRect().width;
-    appliancesFilterTag.style.width = `${accurateListWidth}px`;
-    event.target.style.width = `${accurateListWidth}px`;
+    if (accurateListWidth > 300) {
+      appliancesList.style.display = "grid";
+      appliancesFilterTag.style.width = `${accurateListWidth}px`;
+      event.target.style.width = `${accurateListWidth}px`;
+    } else {
+      appliancesList.style.display = "block";
+      appliancesList.style.width = "300px";
+      event.target.style.width = "300px";
+    }
     event.target.setAttribute("placeholder", "Rechercher un appareil");
   }
   if (filterName === "ustensiles") {
+    if(ustensilsList.children.length > 40) {
+      ustensilsList.style.gridTemplateRows = "repeat(20, 1fr)";
+    } else {
+      ustensilsList.style.gridTemplateRows = "repeat(10, 1fr)";
+    }
     // ustensilsList.style.left = "0";
     ustensilsList.style.opacity = "1";
     ustensilsFilterTag.style.borderRadius = "5px 5px 0 0";
     const accurateListWidth = ustensilsList.getBoundingClientRect().width;
-    ustensilsFilterTag.style.width = `${accurateListWidth}px`;
-    event.target.style.width = `${accurateListWidth}px`;
+    if (accurateListWidth > 300) {
+      ustensilsList.style.display = "grid";
+      ustensilsFilterTag.style.width = `${accurateListWidth}px`;
+      event.target.style.width = `${accurateListWidth}px`;
+    } else {
+      ustensilsList.style.display = "block";
+      ustensilsList.style.width = "300px";
+      event.target.style.width = "300px";
+    }
     event.target.setAttribute("placeholder", "Rechercher un ustensile");
   }
 }
@@ -117,14 +153,20 @@ function displayList(event) {
 function hideList(inputName) {
   if (inputName === "ingredients") {
     ingredientsList.style.opacity = "0";
+    ingredientsList.style.display = "grid";
+    ingredientsList.style.width = "unset";
     // ingredientsList.style.left = "-9999px";
   }
   if (inputName === "appareils") {
     appliancesList.style.opacity = "0";
+    appliancesList.style.display = "grid";
+    appliancesList.style.width = "unset";
     // appliancesList.style.left = "-9999px";
   }
   if (inputName === "ustensiles") {
     ustensilsList.style.opacity = "0";
+    ustensilsList.style.display = "grid";
+    ustensilsList.style.width = "unset";
     // ustensilsList.style.left = "-9999px";
   }
 }
