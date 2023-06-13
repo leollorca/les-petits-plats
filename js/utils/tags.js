@@ -102,6 +102,9 @@ function displayList(event) {
     } else {
       ingredientsList.style.display = "block";
       ingredientsList.style.width = "300px";
+      Array.from(ustensilsList.children).forEach((child) => {
+        child.style.width = "100%";
+      });
       event.target.style.width = "300px";
     }
     event.target.setAttribute("placeholder", "Rechercher un ingrédient");
@@ -123,6 +126,9 @@ function displayList(event) {
     } else {
       appliancesList.style.display = "block";
       appliancesList.style.width = "300px";
+      Array.from(appliancesList.children).forEach((child) => {
+        child.style.width = "100%";
+      });
       event.target.style.width = "300px";
     }
     event.target.setAttribute("placeholder", "Rechercher un appareil");
@@ -144,6 +150,9 @@ function displayList(event) {
     } else {
       ustensilsList.style.display = "block";
       ustensilsList.style.width = "300px";
+      Array.from(ustensilsList.children).forEach((child) => {
+        child.style.width = "100%";
+      });
       event.target.style.width = "300px";
     }
     event.target.setAttribute("placeholder", "Rechercher un ustensile");
@@ -171,64 +180,14 @@ function hideList(inputName) {
   }
 }
 
-filterTags.forEach((tag) => {
-  tag.addEventListener("focus", (event) => inputToFocusState(event));
-  tag.addEventListener("input", (event) => {
-    if (event.target.value) {
-      event.target.style.opacity = "1";
-    } else {
-      event.target.style.opacity = ".5";
-    }
-
-    // const filterName = event.target.getAttribute("name");
-    // let currentList;
-    // if (filterName === "ingredients") {
-    //   currentList = ingredientsList;
-    // }
-    // if (filterName === "appareils") {
-    //   currentList = appliancesList;
-    // }
-    // if (filterName === "ustensiles") {
-    //   currentList = ustensilsList;
-    // }
-
-    // if (currentList.innerHTML) {
-    //   displayList(event);
-    // } else {
-    //   inputToFocusState(event);
-    //   hideList(event.target.getAttribute("name"));
-    // }
+filterTags.forEach((filterTag) => {
+  filterTag.addEventListener("focus", (event) => inputToFocusState(event));
+  filterTag.addEventListener("input", (event) => {
+    const target = event.target;
+    target.value ? target.style.opacity = "1" : target.style.opacity = ".5";
   });
-  tag.addEventListener("focusout", (event) => {
+  filterTag.addEventListener("focusout", (event) => {
     hideList(event.target.getAttribute("name"));
     inputToOriginalState(event);
   });
 });
-
-function addTag(tagContent, color) {
-  const tagsContainer = document.querySelector(".search__tags");
-  const tag = document.createElement("div");
-  const tagCrossIcon = document.createElement("img");
-
-  tagsContainer.style.display = "flex";
-  tag.classList.add("tag");
-  tag.innerHTML = tagContent;
-  tag.style.backgroundColor = color;
-  tagCrossIcon.classList.add("tag__icon");
-  tagCrossIcon.setAttribute("src", "./assets/icons/cross.svg");
-
-  tagCrossIcon.addEventListener("click", removeTag);
-
-  tag.appendChild(tagCrossIcon);
-  tagsContainer.appendChild(tag);
-}
-
-function removeTag(event) {
-  const tagsContainer = document.querySelector(".search__tags");
-  event.target.parentNode.remove();
-  if (!tagsContainer.innerHTML) {
-    tagsContainer.style.display = "none";
-  }
-}
-
-export { addTag };
