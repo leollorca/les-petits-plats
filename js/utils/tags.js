@@ -1,193 +1,122 @@
-// import { recipes } from "../../data/recipes.js";
-
-const filterTags = document.querySelectorAll(".filter__input");
-
-// INGREDIENTS
-const ingredientsFilterTag = document.querySelector(".ingredients");
-const ingredientsInput = document.getElementById("filter__ingredients");
-const ingredientsDropdownIcon = document.querySelector(
-  ".ingredients .filter__icon"
-);
 const ingredientsList = document.querySelector(".ingredients .filter__list");
 ingredientsList.style.backgroundColor = "#3282f7";
 
-// APPAREILS
-const appliancesFilterTag = document.querySelector(".appareils");
-const appliancesInput = document.getElementById("filter__appareils");
-const appliancesDropdownIcon = document.querySelector(
-  ".appareils .filter__icon"
-);
 const appliancesList = document.querySelector(".appareils .filter__list");
 appliancesList.style.backgroundColor = "#68d9a4";
 
-// USTENSILES
-const ustensilsFilterTag = document.querySelector(".ustensiles");
-const ustensilsInput = document.getElementById("filter__ustensiles");
-const ustensilsDropdownIcon = document.querySelector(
-  ".ustensiles .filter__icon"
-);
 const ustensilsList = document.querySelector(".ustensiles .filter__list");
 ustensilsList.style.backgroundColor = "#ed6454";
+
+function getTargetInfos(event) {
+  switch (event.target.name) {
+    case "ingredients":
+      return {
+        filterTag: document.querySelector(".ingredients"),
+        input: document.getElementById("filter__ingredients"),
+        list: ingredientsList,
+        placeholder: "Ingrédients",
+        focusedPlaceholder: "Rechercher un ingrédient",
+        dropdownIcon: document.querySelector(".ingredients .filter__icon")
+      };
+    case "appareils":
+      return {
+        filterTag: document.querySelector(".appareils"),
+        input: document.getElementById("filter__appareils"),
+        list: appliancesList,
+        placeholder: "Appareils",
+        focusedPlaceholder: "Rechercher un appareil",
+        dropdownIcon: document.querySelector(".appareils .filter__icon")
+      };
+    case "ustensiles":
+      return {
+        filterTag: document.querySelector(".ustensiles"),
+        input: document.getElementById("filter__ustensiles"),
+        list: ustensilsList,
+        placeholder: "Ustensiles",
+        focusedPlaceholder: "Rechercher un ustensile",
+        dropdownIcon: document.querySelector(".ustensiles .filter__icon")
+      };
+  }
+}
 
 function inputToOriginalState(event) {
   event.target.value = "";
   event.target.style.opacity = "1";
   event.target.style.width = `100%`;
 
-  const filterName = event.target.getAttribute("name");
-  if (filterName === "ingredients") {
-    ingredientsFilterTag.style.width = `190px`;
-    ingredientsFilterTag.style.borderRadius = "5px";
-    ingredientsInput.setAttribute("placeholder", "Ingrédients");
-  }
-  if (filterName === "appareils") {
-    appliancesFilterTag.style.width = `190px`;
-    appliancesFilterTag.style.borderRadius = "5px";
-    appliancesInput.setAttribute("placeholder", "Appareils");
-  }
-  if (filterName === "ustensiles") {
-    ustensilsFilterTag.style.width = `190px`;
-    ustensilsFilterTag.style.borderRadius = "5px";
-    ustensilsInput.setAttribute("placeholder", "Ustensiles");
-  }
+  const { filterTag, input, placeholder } = getTargetInfos(event);
+
+  filterTag.style.width = `190px`;
+  filterTag.style.borderRadius = "5px";
+  input.setAttribute("placeholder", placeholder);
 }
 
 function inputToFocusState(event) {
   event.target.style.width = "300px";
   event.target.style.opacity = ".5";
 
-  const filterName = event.target.getAttribute("name");
-  if (filterName === "ingredients") {
-    ingredientsFilterTag.style.width = "300px";
-    ingredientsFilterTag.style.borderRadius = "5px";
-    ingredientsInput.setAttribute("placeholder", "Rechercher un ingrédient");
-    if (ingredientsList.innerHTML) {
-      displayList(event);
-    }
-  }
-  if (filterName === "appareils") {
-    appliancesFilterTag.style.width = "300px";
-    appliancesFilterTag.style.borderRadius = "5px";
-    appliancesInput.setAttribute("placeholder", "Rechercher un appareil");
-    if (appliancesList.innerHTML) {
-      displayList(event);
-    }
-  }
-  if (filterName === "ustensiles") {
-    ustensilsFilterTag.style.width = "300px";
-    ustensilsFilterTag.style.borderRadius = "5px";
-    ustensilsInput.setAttribute("placeholder", "Rechercher un ustensile");
-    if (ustensilsList.innerHTML) {
-      displayList(event);
-    }
+  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(event);
+
+  filterTag.style.width = "300px";
+  filterTag.style.borderRadius = "5px";
+  input.setAttribute("placeholder", focusedPlaceholder);
+
+  if (list.innerHTML) {
+    displayList(event);
   }
 }
 
 function displayList(event) {
-  const filterName = event.target.getAttribute("name");
-  if (filterName === "ingredients") {
-    if(ingredientsList.children.length > 40) {
-      ingredientsList.style.gridTemplateRows = "repeat(20, 1fr)";
-    } else {
-      ingredientsList.style.gridTemplateRows = "repeat(10, 1fr)";
-    }
-    // ingredientsList.style.left = "0";
-    ingredientsList.style.opacity = "1";
-    ingredientsFilterTag.style.borderRadius = "5px 5px 0 0";
-    const accurateListWidth = ingredientsList.getBoundingClientRect().width;
-    if (accurateListWidth > 300) {
-      ingredientsList.style.display = "grid";
-      ingredientsFilterTag.style.width = `${accurateListWidth}px`;
-      event.target.style.width = `${accurateListWidth}px`;
-    } else {
-      ingredientsList.style.display = "block";
-      ingredientsList.style.width = "300px";
-      Array.from(ustensilsList.children).forEach((child) => {
-        child.style.width = "100%";
-      });
-      event.target.style.width = "300px";
-    }
-    event.target.setAttribute("placeholder", "Rechercher un ingrédient");
+  const { filterTag, list, focusedPlaceholder } = getTargetInfos(event);
+
+  if (list.children.length > 40) {
+    list.style.gridTemplateRows = "repeat(20, 1fr)";
+  } else {
+    list.style.gridTemplateRows = "repeat(10, 1fr)";
   }
-  if (filterName === "appareils") {
-    if(appliancesList.children.length > 40) {
-      appliancesList.style.gridTemplateRows = "repeat(20, 1fr)";
-    } else {
-      appliancesList.style.gridTemplateRows = "repeat(10, 1fr)";
-    }
-    // appliancesList.style.left = "0";
-    appliancesList.style.opacity = "1";
-    appliancesFilterTag.style.borderRadius = "5px 5px 0 0";
-    const accurateListWidth = appliancesList.getBoundingClientRect().width;
-    if (accurateListWidth > 300) {
-      appliancesList.style.display = "grid";
-      appliancesFilterTag.style.width = `${accurateListWidth}px`;
-      event.target.style.width = `${accurateListWidth}px`;
-    } else {
-      appliancesList.style.display = "block";
-      appliancesList.style.width = "300px";
-      Array.from(appliancesList.children).forEach((child) => {
-        child.style.width = "100%";
-      });
-      event.target.style.width = "300px";
-    }
-    event.target.setAttribute("placeholder", "Rechercher un appareil");
+
+  // list.style.left = "0";
+  list.style.opacity = "1";
+  filterTag.style.borderRadius = "5px 5px 0 0";
+
+  const accurateListWidth = list.getBoundingClientRect().width;
+
+  if (list.children.length > 10) {
+    list.style.display = "grid";
+    filterTag.style.width = `${accurateListWidth}px`;
+    event.target.style.width = `${accurateListWidth}px`;
+  } else {
+    list.style.display = "block";
+    list.style.width = "300px";
+
+    Array.from(list.children).forEach((child) => {
+      child.style.width = "100%";
+    });
+
+    event.target.style.width = "300px";
   }
-  if (filterName === "ustensiles") {
-    if(ustensilsList.children.length > 40) {
-      ustensilsList.style.gridTemplateRows = "repeat(20, 1fr)";
-    } else {
-      ustensilsList.style.gridTemplateRows = "repeat(10, 1fr)";
-    }
-    // ustensilsList.style.left = "0";
-    ustensilsList.style.opacity = "1";
-    ustensilsFilterTag.style.borderRadius = "5px 5px 0 0";
-    const accurateListWidth = ustensilsList.getBoundingClientRect().width;
-    if (accurateListWidth > 300) {
-      ustensilsList.style.display = "grid";
-      ustensilsFilterTag.style.width = `${accurateListWidth}px`;
-      event.target.style.width = `${accurateListWidth}px`;
-    } else {
-      ustensilsList.style.display = "block";
-      ustensilsList.style.width = "300px";
-      Array.from(ustensilsList.children).forEach((child) => {
-        child.style.width = "100%";
-      });
-      event.target.style.width = "300px";
-    }
-    event.target.setAttribute("placeholder", "Rechercher un ustensile");
-  }
+
+  event.target.setAttribute("placeholder", focusedPlaceholder);
 }
 
-function hideList(inputName) {
-  if (inputName === "ingredients") {
-    ingredientsList.style.opacity = "0";
-    ingredientsList.style.display = "grid";
-    ingredientsList.style.width = "unset";
-    // ingredientsList.style.left = "-9999px";
-  }
-  if (inputName === "appareils") {
-    appliancesList.style.opacity = "0";
-    appliancesList.style.display = "grid";
-    appliancesList.style.width = "unset";
-    // appliancesList.style.left = "-9999px";
-  }
-  if (inputName === "ustensiles") {
-    ustensilsList.style.opacity = "0";
-    ustensilsList.style.display = "grid";
-    ustensilsList.style.width = "unset";
-    // ustensilsList.style.left = "-9999px";
-  }
+function hideList(event) {
+  const { list } = getTargetInfos(event);
+
+  list.style.opacity = "0";
+  list.style.display = "grid";
+  list.style.width = "unset";
+  // list.style.left = "-9999px"; 
 }
 
-filterTags.forEach((filterTag) => {
-  filterTag.addEventListener("focus", (event) => inputToFocusState(event));
-  filterTag.addEventListener("input", (event) => {
-    const target = event.target;
-    target.value ? target.style.opacity = "1" : target.style.opacity = ".5";
+document.querySelectorAll(".filter__input").forEach((input) => {
+  input.addEventListener("focus", (event) => inputToFocusState(event));
+  input.addEventListener("input", (event) => {
+    event.target.value
+      ? event.target.style.opacity = "1"
+      : event.target.style.opacity = ".5";
   });
-  filterTag.addEventListener("focusout", (event) => {
-    hideList(event.target.getAttribute("name"));
+  input.addEventListener("focusout", (event) => {
+    hideList(event);
     inputToOriginalState(event);
   });
 });
