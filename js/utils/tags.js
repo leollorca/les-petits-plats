@@ -16,7 +16,7 @@ function getTargetInfos(event) {
         list: ingredientsList,
         placeholder: "Ingrédients",
         focusedPlaceholder: "Rechercher un ingrédient",
-        dropdownIcon: document.querySelector(".ingredients .filter__icon")
+        dropdownIcon: document.querySelector(".ingredients .filter__icon"),
       };
     case "appareils":
       return {
@@ -25,7 +25,7 @@ function getTargetInfos(event) {
         list: appliancesList,
         placeholder: "Appareils",
         focusedPlaceholder: "Rechercher un appareil",
-        dropdownIcon: document.querySelector(".appareils .filter__icon")
+        dropdownIcon: document.querySelector(".appareils .filter__icon"),
       };
     case "ustensiles":
       return {
@@ -34,17 +34,17 @@ function getTargetInfos(event) {
         list: ustensilsList,
         placeholder: "Ustensiles",
         focusedPlaceholder: "Rechercher un ustensile",
-        dropdownIcon: document.querySelector(".ustensiles .filter__icon")
+        dropdownIcon: document.querySelector(".ustensiles .filter__icon"),
       };
   }
 }
 
 function inputToOriginalState(event) {
+  const { filterTag, input, placeholder } = getTargetInfos(event);
+
   event.target.value = "";
   event.target.style.opacity = "1";
   event.target.style.width = `100%`;
-
-  const { filterTag, input, placeholder } = getTargetInfos(event);
 
   filterTag.style.width = `190px`;
   filterTag.style.borderRadius = "5px";
@@ -52,10 +52,10 @@ function inputToOriginalState(event) {
 }
 
 function inputToFocusState(event) {
+  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(event);
+
   event.target.style.width = "300px";
   event.target.style.opacity = ".5";
-
-  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(event);
 
   filterTag.style.width = "300px";
   filterTag.style.borderRadius = "5px";
@@ -105,15 +105,15 @@ function hideList(event) {
   list.style.opacity = "0";
   list.style.display = "grid";
   list.style.width = "unset";
-  // list.style.left = "-9999px"; 
+  // list.style.left = "-9999px";
 }
 
 document.querySelectorAll(".filter__input").forEach((input) => {
   input.addEventListener("focus", (event) => inputToFocusState(event));
   input.addEventListener("input", (event) => {
     event.target.value
-      ? event.target.style.opacity = "1"
-      : event.target.style.opacity = ".5";
+      ? (event.target.style.opacity = "1")
+      : (event.target.style.opacity = ".5");
   });
   input.addEventListener("focusout", (event) => {
     hideList(event);
