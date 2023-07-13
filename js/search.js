@@ -337,7 +337,6 @@ function renderAppliancesListItems(appliances) {
   appliances.forEach((appliance) => {
     const capitalizedAppliance =
       appliance.charAt(0).toUpperCase() + appliance.slice(1);
-
     if (tags.appliances.includes(capitalizedAppliance)) {
       return;
     }
@@ -423,4 +422,53 @@ document.querySelector(".search__main").addEventListener("input", (event) => {
   search = event.target.value;
   results = getResults(search);
   render();
+});
+
+document.querySelectorAll(".filter__input").forEach((input) => {
+  input.addEventListener("input", (event) => {
+    const search = event.target.value;
+    if (search.length > 2) {
+      switch (input.name) {
+        case "ingredients":
+          const ingredients = getIngredients(recipes);
+          const filteredIngredients = ingredients.filter((ingredient) => {
+            const regex = new RegExp(search, "gi");
+            return ingredient.match(regex);
+          });
+          renderIngredientsListItems(filteredIngredients);
+          break;
+        case "appareils":
+          const appliances = getAppliances(recipes);
+          const filteredAppliances = appliances.filter((appliance) => {
+            const regex = new RegExp(search, "gi");
+            return appliance.match(regex);
+          });
+          renderAppliancesListItems(filteredAppliances);
+          break;
+        case "ustensiles":
+          const ustensils = getUstensils(recipes);
+          const filteredUstensils = ustensils.filter((ustensil) => {
+            const regex = new RegExp(search, "gi");
+            return ustensil.match(regex);
+          });
+          renderUstensilsListItems(filteredUstensils);
+          break;
+      }
+    } else {
+      switch (input.name) {
+        case "ingredients":
+          tags.ingredients = [];
+          renderIngredientsListItems(getIngredients(results));
+          break;
+        case "appareils":
+          tags.appliances = [];
+          renderAppliancesListItems(getAppliances(results));
+          break;
+        case "ustensiles":
+          tags.ustensils = [];
+          renderUstensilsListItems(getUstensils(results));
+          break;
+      }
+    }
+  });
 });

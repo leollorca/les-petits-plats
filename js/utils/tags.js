@@ -69,6 +69,10 @@ function inputToFocusState(event) {
 function displayList(event) {
   const { filterTag, list, focusedPlaceholder } = getTargetInfos(event);
 
+  if (!list.children.length) {
+    return;
+  }
+
   if (list.children.length > 40) {
     list.style.gridTemplateRows = "repeat(20, 1fr)";
   } else {
@@ -100,8 +104,9 @@ function displayList(event) {
 }
 
 function hideList(event) {
-  const { list } = getTargetInfos(event);
+  const { filterTag, list } = getTargetInfos(event);
 
+  filterTag.style.borderRadius = "5px";
   list.style.opacity = "0";
   list.style.display = "grid";
   list.style.width = "unset";
@@ -114,6 +119,8 @@ document.querySelectorAll(".filter__input").forEach((input) => {
     event.target.value
       ? (event.target.style.opacity = "1")
       : (event.target.style.opacity = ".5");
+
+    event.target.value.length > 2 ? displayList(event) : hideList(event);
   });
   input.addEventListener("focusout", (event) => {
     hideList(event);
