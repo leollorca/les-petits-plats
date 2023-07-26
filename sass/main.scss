@@ -91,14 +91,26 @@ header {
 
     .ingredients {
       background-color: $blue;
+
+      .filter__list {
+        background-color: $blue;
+      }
     }
 
     .appareils {
       background-color: $green;
+
+      .filter__list {
+        background-color: $green;
+      }
     }
 
     .ustensiles {
       background-color: $red;
+
+      .filter__list {
+        background-color: $red;
+      }
     }
 
     .filter {
@@ -149,10 +161,7 @@ header {
         top: 29.5px;
         right: 30px;
         cursor: pointer;
-      }
-
-      .rotate {
-        transform: rotate(180deg);
+        transition: transform 0.2s;
       }
 
       &__list {

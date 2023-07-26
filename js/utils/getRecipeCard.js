@@ -1,4 +1,4 @@
-const getRecipeCard = (recipe) => {
+export default function getRecipeCard(recipe) {
   const { name, ingredients, time, description } = recipe;
 
   const card = document.createElement("li");
@@ -42,6 +42,4 @@ const getRecipeCard = (recipe) => {
   card.appendChild(descriptionContainer);
 
   return card;
-};
-
-export { getRecipeCard };
+}

@@ -1,13 +1,19 @@
 import { recipes } from "../data/recipes.js";
-import { getRecipeCard } from "./utils/cards.js";
 
-let search;
-let results = [];
-const tags = {
-  ingredients: [],
-  appliances: [],
-  ustensils: [],
+import getTargetInfos from "./utils/getTargetInfos.js";
+import getRecipeCard from "./utils/getRecipeCard.js";
+
+const state = {
+  search: "",
+  results: [],
+  tags: {
+    ingredients: [],
+    appliances: [],
+    ustensils: [],
+  },
 };
+
+let { search, results, tags } = state;
 
 function getResults(search) {
   const isSearchValid = search && search.length > 2;
@@ -175,10 +181,11 @@ function getResultsWithOnlyTags() {
 
   return provisionalResults.reduce((acc, recipe, index, array) => {
     let count = 0;
+
     array.forEach((element) => {
       element.id === recipe.id && count++;
     });
-    console.log(count);
+
     if (count > 1) {
       const isThereRecipeAlreadyInAcc = acc.some((element) => {
         return element.id === recipe.id;
@@ -187,6 +194,7 @@ function getResultsWithOnlyTags() {
         acc.push(recipe);
       }
     }
+
     return acc;
   }, []);
 }
@@ -248,10 +256,14 @@ function getUstensils(recipes) {
 }
 
 function render() {
+  renderListItems();
+  renderResults();
+}
+
+function renderListItems() {
   renderIngredientsListItems(getIngredients(results));
   renderAppliancesListItems(getAppliances(results));
   renderUstensilsListItems(getUstensils(results));
-  renderResults();
 }
 
 function renderResults() {
@@ -259,14 +271,6 @@ function renderResults() {
 
   results.forEach((result) => {
     document.querySelector(".recipes").appendChild(getRecipeCard(result));
-  });
-}
-
-function removeListItem(list, listItem) {
-  Array.from(list.children).forEach((child) => {
-    if (child.innerText === listItem) {
-      child.remove();
-    }
   });
 }
 
@@ -296,7 +300,7 @@ function renderIngredientsListItems(ingredients) {
       addTag(event.target.innerText, "#3282f7", tags.ingredients);
       results = getResults(search);
       render();
-      removeListItem(ingredientsTag, event.target.innerText);
+      removeListItemWhenAdded(ingredientsTag, event.target.innerText);
     });
   });
 }
@@ -312,6 +316,7 @@ function renderAppliancesListItems(appliances) {
   appliances.forEach((appliance) => {
     const capitalizedAppliance =
       appliance.charAt(0).toUpperCase() + appliance.slice(1);
+
     if (tags.appliances.includes(capitalizedAppliance)) {
       return;
     }
@@ -326,7 +331,7 @@ function renderAppliancesListItems(appliances) {
       addTag(event.target.innerText, "#68d9a4", tags.appliances);
       results = getResults(search);
       render();
-      removeListItem(appliancesTag, event.target.innerText);
+      removeListItemWhenAdded(appliancesTag, event.target.innerText);
     });
   });
 }
@@ -342,6 +347,7 @@ function renderUstensilsListItems(ustensils) {
   ustensils.forEach((ustensil) => {
     const capitalizedUstensil =
       ustensil.charAt(0).toUpperCase() + ustensil.slice(1);
+
     if (tags.ustensils.includes(capitalizedUstensil)) {
       return;
     }
@@ -356,7 +362,7 @@ function renderUstensilsListItems(ustensils) {
       addTag(event.target.innerText, "#ed6454", tags.ustensils);
       results = getResults(search);
       render();
-      removeListItem(ustensilsTag, event.target.innerText);
+      removeListItemWhenAdded(ustensilsTag, event.target.innerText);
     });
   });
 }
@@ -393,6 +399,88 @@ function removeTag(event, currentTags) {
   currentTags.splice(indexOfTag, 1);
 }
 
+/////
+
+function inputToOriginalState(event) {
+  const { filterTag, input, placeholder } = getTargetInfos(event);
+
+  event.target.value = "";
+  event.target.style.opacity = "1";
+  event.target.style.width = `100%`;
+
+  filterTag.style.width = `190px`;
+  filterTag.style.borderRadius = "5px";
+  input.setAttribute("placeholder", placeholder);
+}
+
+function inputToFocusState(event) {
+  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(event);
+
+  event.target.style.width = "300px";
+  event.target.style.opacity = ".5";
+
+  filterTag.style.width = "300px";
+  filterTag.style.borderRadius = "5px";
+  input.setAttribute("placeholder", focusedPlaceholder);
+
+  if (list.innerHTML) {
+    displayList(event);
+  }
+}
+
+function displayList(event) {
+  const { filterTag, list, focusedPlaceholder, dropdownIcon } =
+    getTargetInfos(event);
+
+  if (!list.children.length) {
+    return;
+  }
+
+  if (list.children.length > 40) {
+    list.style.gridTemplateRows = "repeat(20, 1fr)";
+  } else {
+    list.style.gridTemplateRows = "repeat(10, 1fr)";
+  }
+
+  // list.style.left = "0";
+  list.style.opacity = "1";
+  filterTag.style.borderRadius = "5px 5px 0 0";
+
+  const accurateListWidth = list.getBoundingClientRect().width;
+
+  if (list.children.length > 10) {
+    list.style.display = "grid";
+    filterTag.style.width = `${accurateListWidth}px`;
+    event.target.style.width = `${accurateListWidth}px`;
+  } else {
+    list.style.display = "block";
+    list.style.width = "300px";
+
+    Array.from(list.children).forEach((child) => {
+      child.style.width = "100%";
+    });
+
+    event.target.style.width = "300px";
+  }
+
+  event.target.setAttribute("placeholder", focusedPlaceholder);
+
+  dropdownIcon.style.transform = "rotate(180deg)";
+}
+
+function hideList(event) {
+  const { filterTag, list, dropdownIcon } = getTargetInfos(event);
+
+  filterTag.style.borderRadius = "5px";
+  list.style.opacity = "0";
+  list.style.display = "grid";
+  list.style.width = "unset";
+  // list.style.left = "-9999px";
+  dropdownIcon.style.transform = "rotate(0deg)";
+}
+
+/////
+
 document.querySelector(".search__main").addEventListener("input", (event) => {
   search = event.target.value;
   results = getResults(search);
@@ -401,6 +489,10 @@ document.querySelector(".search__main").addEventListener("input", (event) => {
 
 document.querySelectorAll(".filter__input").forEach((input) => {
   input.addEventListener("input", (event) => {
+    event.target.value
+      ? (event.target.style.opacity = "1")
+      : (event.target.style.opacity = ".5");
+
     const search = event.target.value;
     if (search.length > 2) {
       switch (input.name) {
@@ -411,6 +503,7 @@ document.querySelectorAll(".filter__input").forEach((input) => {
             return ingredient.match(regex);
           });
           renderIngredientsListItems(filteredIngredients);
+          displayList(event);
           break;
         case "appareils":
           const appliances = getAppliances(recipes);
@@ -419,6 +512,7 @@ document.querySelectorAll(".filter__input").forEach((input) => {
             return appliance.match(regex);
           });
           renderAppliancesListItems(filteredAppliances);
+          displayList(event);
           break;
         case "ustensiles":
           const ustensils = getUstensils(recipes);
@@ -427,23 +521,30 @@ document.querySelectorAll(".filter__input").forEach((input) => {
             return ustensil.match(regex);
           });
           renderUstensilsListItems(filteredUstensils);
+          displayList(event);
           break;
       }
     } else {
       switch (input.name) {
         case "ingredients":
           tags.ingredients = [];
-          renderIngredientsListItems(getIngredients(results));
+          hideList(event);
           break;
         case "appareils":
           tags.appliances = [];
-          renderAppliancesListItems(getAppliances(results));
+          hideList(event);
           break;
         case "ustensiles":
           tags.ustensils = [];
-          renderUstensilsListItems(getUstensils(results));
+          hideList(event);
           break;
       }
     }
+  });
+  input.addEventListener("focus", (event) => inputToFocusState(event));
+  input.addEventListener("focusout", (event) => {
+    hideList(event);
+    inputToOriginalState(event);
+    renderListItems();
   });
 });
