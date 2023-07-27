@@ -367,6 +367,14 @@ function renderUstensilsListItems(ustensils) {
   });
 }
 
+function removeListItemWhenAdded(list, listItem) {
+  Array.from(list.children).forEach((child) => {
+    if (child.innerText === listItem) {
+      child.remove();
+    }
+  });
+}
+
 function addTag(tagContent, color, currentTags) {
   const tagsContainer = document.querySelector(".search__tags");
   const tag = document.createElement("div");
@@ -404,6 +412,8 @@ function removeTag(event, currentTags) {
 function inputToOriginalState(event) {
   const { filterTag, input, placeholder } = getTargetInfos(event);
 
+  input.removeAttribute("readonly");
+
   event.target.value = "";
   event.target.style.opacity = "1";
   event.target.style.width = `100%`;
@@ -416,6 +426,10 @@ function inputToOriginalState(event) {
 function inputToFocusState(event) {
   const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(event);
 
+  if (search) {
+    input.setAttribute("readonly", true);
+  }
+
   event.target.style.width = "300px";
   event.target.style.opacity = ".5";
 
@@ -423,7 +437,7 @@ function inputToFocusState(event) {
   filterTag.style.borderRadius = "5px";
   input.setAttribute("placeholder", focusedPlaceholder);
 
-  if (list.innerHTML) {
+  if (list.innerHTML && event.target.value.length > 2) {
     displayList(event);
   }
 }
@@ -542,9 +556,8 @@ document.querySelectorAll(".filter__input").forEach((input) => {
     }
   });
   input.addEventListener("focus", (event) => inputToFocusState(event));
-  input.addEventListener("focusout", (event) => {
+  input.addEventListener("blur", (event) => {
     hideList(event);
     inputToOriginalState(event);
-    renderListItems();
   });
 });
