@@ -1,5 +1,6 @@
 import { recipes } from "../data/recipes.js";
 
+import createHtmlTag from "./utils/createHtmlTag.js";
 import getTargetInfos from "./utils/getTargetInfos.js";
 import getRecipeCard from "./utils/getRecipeCard.js";
 
@@ -290,10 +291,12 @@ function renderIngredientsListItems(ingredients) {
       return;
     }
 
-    const ingredientTag = document.createElement("li");
-    ingredientTag.classList.add("filter__item");
-    ingredientTag.classList.add("filter__item--blue");
-    ingredientTag.innerText = capitalizedIngredient;
+    const ingredientTag = createHtmlTag(
+      "li",
+      { class: "filter__item filter__item--blue" },
+      null,
+      capitalizedIngredient
+    );
     ingredientsTag.appendChild(ingredientTag);
 
     ingredientTag.addEventListener("click", (event) => {
@@ -320,11 +323,12 @@ function renderAppliancesListItems(appliances) {
     if (tags.appliances.includes(capitalizedAppliance)) {
       return;
     }
-
-    const applianceTag = document.createElement("li");
-    applianceTag.classList.add("filter__item");
-    applianceTag.classList.add("filter__item--green");
-    applianceTag.innerText = capitalizedAppliance;
+    const applianceTag = createHtmlTag(
+      "li",
+      { class: "filter__item filter__item--green" },
+      null,
+      capitalizedAppliance
+    );
     appliancesTag.appendChild(applianceTag);
 
     applianceTag.addEventListener("click", (event) => {
@@ -352,10 +356,12 @@ function renderUstensilsListItems(ustensils) {
       return;
     }
 
-    const ustensilTag = document.createElement("li");
-    ustensilTag.classList.add("filter__item");
-    ustensilTag.classList.add("filter__item--red");
-    ustensilTag.innerText = capitalizedUstensil;
+    const ustensilTag = createHtmlTag(
+      "li",
+      { class: "filter__item filter__item--red" },
+      null,
+      capitalizedUstensil
+    );
     ustensilsTag.appendChild(ustensilTag);
 
     ustensilTag.addEventListener("click", (event) => {
@@ -376,16 +382,10 @@ function removeListItemWhenAdded(list, listItem) {
 }
 
 function addTag(tagContent, color, currentTags) {
-  const tagsContainer = document.querySelector(".search__tags");
-  const tag = document.createElement("div");
-  const tagCrossIcon = document.createElement("img");
-
-  tagsContainer.style.display = "flex";
-  tag.classList.add("tag");
-  tag.innerHTML = tagContent;
-  tag.style.backgroundColor = color;
-  tagCrossIcon.classList.add("tag__icon");
-  tagCrossIcon.setAttribute("src", "./assets/icons/cross.svg");
+  const tagCrossIcon = createHtmlTag("img", {
+    class: "tag__icon",
+    src: "./assets/icons/cross.svg",
+  });
 
   tagCrossIcon.addEventListener("click", (event) => {
     removeTag(event, currentTags);
@@ -396,8 +396,18 @@ function addTag(tagContent, color, currentTags) {
     }
   });
 
-  tag.appendChild(tagCrossIcon);
-  tagsContainer.appendChild(tag);
+  const tagsContainer = document.querySelector(".search__tags");
+  tagsContainer.appendChild(
+    createHtmlTag(
+      "div",
+      { class: "tag", style: `background:${color};` },
+      null,
+      tagContent,
+      tagCrossIcon
+    )
+  );
+  tagsContainer.style.display = "flex";
+
   currentTags.push(tagContent);
 }
 
@@ -437,9 +447,11 @@ function inputToFocusState(event) {
   filterTag.style.borderRadius = "5px";
   input.setAttribute("placeholder", focusedPlaceholder);
 
-  if (list.innerHTML && event.target.value.length > 2) {
-    displayList(event);
+  if (!event.target.value && !search) {
+    return;
   }
+
+  displayList(event);
 }
 
 function displayList(event) {
