@@ -1,8 +1,8 @@
 import { recipes } from "../data/recipes.js";
 
 import createHtmlTag from "./utils/createHtmlTag.js";
-import getTargetInfos from "./utils/getTargetInfos.js";
 import getRecipeCard from "./utils/getRecipeCard.js";
+import getTargetInfos from "./utils/getTargetInfos.js";
 
 const state = {
   search: "",
@@ -24,18 +24,10 @@ function getResults(search) {
     ...tags.ustensils,
   ].length;
 
-  if (!isSearchValid && !isThereTags) {
-    return [];
-  }
-  if (isSearchValid && isThereTags) {
-    return getResultsWithSearchAndTags(search);
-  }
-  if (isSearchValid && !isThereTags) {
-    return getResultsWithOnlySearch(search);
-  }
-  if (!isSearchValid && isThereTags) {
-    return getResultsWithOnlyTags();
-  }
+  if (!isSearchValid && !isThereTags) return [];
+  if (isSearchValid && isThereTags) return getResultsWithSearchAndTags(search);
+  if (isSearchValid && !isThereTags) return getResultsWithOnlySearch(search);
+  if (!isSearchValid && isThereTags) return getResultsWithOnlyTags();
 }
 
 function getResultsWithOnlySearch(search) {
@@ -183,19 +175,15 @@ function getResultsWithOnlyTags() {
   return provisionalResults.reduce((acc, recipe, index, array) => {
     let count = 0;
 
-    array.forEach((element) => {
-      element.id === recipe.id && count++;
-    });
+    array.forEach((element) => element.id === recipe.id && count++);
 
     if (count > 1) {
       const isThereRecipeAlreadyInAcc = acc.some((element) => {
         return element.id === recipe.id;
       });
-      if (!isThereRecipeAlreadyInAcc) {
-        acc.push(recipe);
-      }
-    }
 
+      if (!isThereRecipeAlreadyInAcc) acc.push(recipe);
+    }
     return acc;
   }, []);
 }
@@ -257,127 +245,67 @@ function getUstensils(recipes) {
 }
 
 function render() {
-  renderListItems();
-  renderResults();
-}
+  renderListItems("ingredients", getIngredients(results));
+  renderListItems("appareils", getAppliances(results));
+  renderListItems("ustensiles", getUstensils(results));
 
-function renderListItems() {
-  renderIngredientsListItems(getIngredients(results));
-  renderAppliancesListItems(getAppliances(results));
-  renderUstensilsListItems(getUstensils(results));
-}
-
-function renderResults() {
   document.querySelector(".recipes").innerHTML = null;
-
   results.forEach((result) => {
     document.querySelector(".recipes").appendChild(getRecipeCard(result));
   });
 }
 
-function renderIngredientsListItems(ingredients) {
-  const ingredientsTag = document.querySelector(".ingredients .filter__list");
-  ingredientsTag.innerHTML = null;
+function renderListItems(name, items) {
+  let { color, list } = getTargetInfos(name);
 
-  if (results.length === 1 || !ingredients.length) {
-    return;
-  }
+  list.innerHTML = null;
 
-  ingredients.forEach((ingredient) => {
-    const capitalizedIngredient =
-      ingredient.charAt(0).toUpperCase() + ingredient.slice(1);
+  if (results.length === 1 || !items.length) return;
 
-    if (tags.ingredients.includes(capitalizedIngredient)) {
-      return;
+  items.forEach((item) => {
+    const capitalizedItem = item.charAt(0).toUpperCase() + item.slice(1);
+
+    switch (name) {
+      case "ingredients":
+        if (tags.ingredients.includes(capitalizedItem)) return;
+        break;
+      case "appareils":
+        if (tags.appliances.includes(capitalizedItem)) return;
+        break;
+      case "ustensiles":
+        if (tags.ustensils.includes(capitalizedItem)) return;
     }
 
-    const ingredientTag = createHtmlTag(
+    const itemTag = createHtmlTag(
       "li",
-      { class: "filter__item filter__item--blue" },
+      { class: "filter__item" },
       null,
-      capitalizedIngredient
+      capitalizedItem
     );
-    ingredientsTag.appendChild(ingredientTag);
+    list.appendChild(itemTag);
 
-    ingredientTag.addEventListener("click", (event) => {
-      addTag(event.target.innerText, "#3282f7", tags.ingredients);
+    itemTag.addEventListener("click", (event) => {
+      switch (name) {
+        case "ingredients":
+          addTag(event.target.innerText, color, tags.ingredients);
+          break;
+        case "appareils":
+          addTag(event.target.innerText, color, tags.appliances);
+          break;
+        case "ustensiles":
+          addTag(event.target.innerText, color, tags.ustensils);
+      }
+
       results = getResults(search);
       render();
-      removeListItemWhenAdded(ingredientsTag, event.target.innerText);
-    });
-  });
-}
-
-function renderAppliancesListItems(appliances) {
-  const appliancesTag = document.querySelector(".appareils .filter__list");
-  appliancesTag.innerHTML = null;
-
-  if (results.length === 1 || !appliances.length) {
-    return;
-  }
-
-  appliances.forEach((appliance) => {
-    const capitalizedAppliance =
-      appliance.charAt(0).toUpperCase() + appliance.slice(1);
-
-    if (tags.appliances.includes(capitalizedAppliance)) {
-      return;
-    }
-    const applianceTag = createHtmlTag(
-      "li",
-      { class: "filter__item filter__item--green" },
-      null,
-      capitalizedAppliance
-    );
-    appliancesTag.appendChild(applianceTag);
-
-    applianceTag.addEventListener("click", (event) => {
-      addTag(event.target.innerText, "#68d9a4", tags.appliances);
-      results = getResults(search);
-      render();
-      removeListItemWhenAdded(appliancesTag, event.target.innerText);
-    });
-  });
-}
-
-function renderUstensilsListItems(ustensils) {
-  const ustensilsTag = document.querySelector(".ustensiles .filter__list");
-  ustensilsTag.innerHTML = null;
-
-  if (results.length === 1 || !ustensils.length) {
-    return;
-  }
-
-  ustensils.forEach((ustensil) => {
-    const capitalizedUstensil =
-      ustensil.charAt(0).toUpperCase() + ustensil.slice(1);
-
-    if (tags.ustensils.includes(capitalizedUstensil)) {
-      return;
-    }
-
-    const ustensilTag = createHtmlTag(
-      "li",
-      { class: "filter__item filter__item--red" },
-      null,
-      capitalizedUstensil
-    );
-    ustensilsTag.appendChild(ustensilTag);
-
-    ustensilTag.addEventListener("click", (event) => {
-      addTag(event.target.innerText, "#ed6454", tags.ustensils);
-      results = getResults(search);
-      render();
-      removeListItemWhenAdded(ustensilsTag, event.target.innerText);
+      removeListItemWhenAdded(list, event.target.innerText);
     });
   });
 }
 
 function removeListItemWhenAdded(list, listItem) {
   Array.from(list.children).forEach((child) => {
-    if (child.innerText === listItem) {
-      child.remove();
-    }
+    if (child.innerText === listItem) child.remove();
   });
 }
 
@@ -420,7 +348,7 @@ function removeTag(event, currentTags) {
 /////
 
 function inputToOriginalState(event) {
-  const { filterTag, input, placeholder } = getTargetInfos(event);
+  const { filterTag, input, placeholder } = getTargetInfos(event.target.name);
 
   input.removeAttribute("readonly");
 
@@ -434,11 +362,11 @@ function inputToOriginalState(event) {
 }
 
 function inputToFocusState(event) {
-  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(event);
+  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(
+    event.target.name
+  );
 
-  if (search) {
-    input.setAttribute("readonly", true);
-  }
+  if (search) input.setAttribute("readonly", true);
 
   event.target.style.width = "300px";
   event.target.style.opacity = ".5";
@@ -447,26 +375,17 @@ function inputToFocusState(event) {
   filterTag.style.borderRadius = "5px";
   input.setAttribute("placeholder", focusedPlaceholder);
 
-  if (!event.target.value && !search) {
-    return;
-  }
+  if (!event.target.value && !search && !results.length) return;
 
   displayList(event);
 }
 
 function displayList(event) {
-  const { filterTag, list, focusedPlaceholder, dropdownIcon } =
-    getTargetInfos(event);
+  const { filterTag, list, focusedPlaceholder, dropdownIcon } = getTargetInfos(
+    event.target.name
+  );
 
-  if (!list.children.length) {
-    return;
-  }
-
-  if (list.children.length > 40) {
-    list.style.gridTemplateRows = "repeat(20, 1fr)";
-  } else {
-    list.style.gridTemplateRows = "repeat(10, 1fr)";
-  }
+  if (!list.children.length) return;
 
   // list.style.left = "0";
   list.style.opacity = "1";
@@ -486,8 +405,13 @@ function displayList(event) {
       child.style.width = "100%";
     });
 
+    filterTag.style.width = "300px";
     event.target.style.width = "300px";
   }
+
+  list.children.length > 40
+    ? (list.style.gridTemplateRows = "repeat(20, 1fr)")
+    : (list.style.gridTemplateRows = "repeat(10, 1fr)");
 
   event.target.setAttribute("placeholder", focusedPlaceholder);
 
@@ -495,7 +419,7 @@ function displayList(event) {
 }
 
 function hideList(event) {
-  const { filterTag, list, dropdownIcon } = getTargetInfos(event);
+  const { filterTag, list, dropdownIcon } = getTargetInfos(event.target.name);
 
   filterTag.style.borderRadius = "5px";
   list.style.opacity = "0";
@@ -515,56 +439,36 @@ document.querySelector(".search__main").addEventListener("input", (event) => {
 
 document.querySelectorAll(".filter__input").forEach((input) => {
   input.addEventListener("input", (event) => {
-    event.target.value
+    const search = event.target.value;
+
+    search
       ? (event.target.style.opacity = "1")
       : (event.target.style.opacity = ".5");
 
-    const search = event.target.value;
+    let { getMethod } = getTargetInfos(event.target.name);
+
     if (search.length > 2) {
       switch (input.name) {
         case "ingredients":
-          const ingredients = getIngredients(recipes);
-          const filteredIngredients = ingredients.filter((ingredient) => {
-            const regex = new RegExp(search, "gi");
-            return ingredient.match(regex);
-          });
-          renderIngredientsListItems(filteredIngredients);
-          displayList(event);
+          getMethod = getIngredients;
           break;
         case "appareils":
-          const appliances = getAppliances(recipes);
-          const filteredAppliances = appliances.filter((appliance) => {
-            const regex = new RegExp(search, "gi");
-            return appliance.match(regex);
-          });
-          renderAppliancesListItems(filteredAppliances);
-          displayList(event);
+          getMethod = getAppliances;
           break;
         case "ustensiles":
-          const ustensils = getUstensils(recipes);
-          const filteredUstensils = ustensils.filter((ustensil) => {
-            const regex = new RegExp(search, "gi");
-            return ustensil.match(regex);
-          });
-          renderUstensilsListItems(filteredUstensils);
-          displayList(event);
+          getMethod = getUstensils;
           break;
       }
+
+      const filteredResults = getMethod(recipes).filter((result) => {
+        const regex = new RegExp(search, "gi");
+        return result.match(regex);
+      });
+
+      renderListItems(event.target.name, filteredResults);
+      displayList(event);
     } else {
-      switch (input.name) {
-        case "ingredients":
-          tags.ingredients = [];
-          hideList(event);
-          break;
-        case "appareils":
-          tags.appliances = [];
-          hideList(event);
-          break;
-        case "ustensiles":
-          tags.ustensils = [];
-          hideList(event);
-          break;
-      }
+      hideList(event);
     }
   });
   input.addEventListener("focus", (event) => inputToFocusState(event));
