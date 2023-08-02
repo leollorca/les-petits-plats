@@ -9,9 +9,8 @@ export default function getTargetInfos(name) {
         placeholder: "Ingrédients",
         focusedPlaceholder: "Rechercher un ingrédient",
         dropdownIcon: document.querySelector(".ingredients .filter__icon"),
-        getMethod: undefined,
       };
-    case "appareils":
+    case "appliances":
       return {
         color: "#68d9a4",
         filterTag: document.querySelector(".appareils"),
@@ -20,9 +19,8 @@ export default function getTargetInfos(name) {
         placeholder: "Appareils",
         focusedPlaceholder: "Rechercher un appareil",
         dropdownIcon: document.querySelector(".appareils .filter__icon"),
-        getMethod: undefined,
       };
-    case "ustensiles":
+    case "ustensils":
       return {
         color: "#ed6454",
         filterTag: document.querySelector(".ustensiles"),
@@ -31,7 +29,6 @@ export default function getTargetInfos(name) {
         placeholder: "Ustensiles",
         focusedPlaceholder: "Rechercher un ustensile",
         dropdownIcon: document.querySelector(".ustensiles .filter__icon"),
-        getMethod: undefined,
       };
   }
 }

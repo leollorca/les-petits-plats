@@ -30,19 +30,6 @@ function getResults(search) {
   if (!isSearchValid && isThereTags) return getResultsWithOnlyTags();
 }
 
-function getResultsWithOnlySearch(search) {
-  return recipes.filter((recipe) => {
-    const regex = new RegExp(search, "gi");
-    return (
-      recipe.name.match(regex) ||
-      recipe.description.match(regex) ||
-      recipe.ingredients.some((ingredient) =>
-        ingredient.ingredient.match(regex)
-      )
-    );
-  });
-}
-
 function getResultsWithSearchAndTags(search) {
   results = getResultsWithOnlySearch(search);
 
@@ -117,28 +104,16 @@ function getResultsWithSearchAndTags(search) {
   });
 }
 
-function areIngredientsInRecipe(recipe) {
-  return tags.ingredients.every((ingredient) => {
-    const formattedIngredients = recipe.ingredients.map((ingredient) => {
-      return ingredient.ingredient.toLowerCase();
-    });
-    return formattedIngredients.includes(ingredient.toLowerCase());
-  });
-}
-
-function areAppliancesInRecipe(recipe) {
-  return tags.appliances.every((appliance) => {
-    const formattedAppliance = recipe.appliance.toLowerCase();
-    return formattedAppliance === appliance.toLowerCase();
-  });
-}
-
-function areUstensilsInRecipe(recipe) {
-  return tags.ustensils.every((ustensil) => {
-    const formattedUstensils = recipe.ustensils.map((ustensil) => {
-      return ustensil.toLowerCase();
-    });
-    return formattedUstensils.includes(ustensil.toLowerCase());
+function getResultsWithOnlySearch(search) {
+  return recipes.filter((recipe) => {
+    const regex = new RegExp(search, "gi");
+    return (
+      recipe.name.match(regex) ||
+      recipe.description.match(regex) ||
+      recipe.ingredients.some((ingredient) =>
+        ingredient.ingredient.match(regex)
+      )
+    );
   });
 }
 
@@ -209,6 +184,31 @@ function getResultsWithOnlyUstensils(recipes) {
   return [];
 }
 
+function areIngredientsInRecipe(recipe) {
+  return tags.ingredients.every((ingredient) => {
+    const formattedIngredients = recipe.ingredients.map((ingredient) => {
+      return ingredient.ingredient.toLowerCase();
+    });
+    return formattedIngredients.includes(ingredient.toLowerCase());
+  });
+}
+
+function areAppliancesInRecipe(recipe) {
+  return tags.appliances.every((appliance) => {
+    const formattedAppliance = recipe.appliance.toLowerCase();
+    return formattedAppliance === appliance.toLowerCase();
+  });
+}
+
+function areUstensilsInRecipe(recipe) {
+  return tags.ustensils.every((ustensil) => {
+    const formattedUstensils = recipe.ustensils.map((ustensil) => {
+      return ustensil.toLowerCase();
+    });
+    return formattedUstensils.includes(ustensil.toLowerCase());
+  });
+}
+
 function getIngredients(recipes) {
   return recipes.reduce((acc, recipe) => {
     recipe.ingredients.forEach((ingredient) => {
@@ -246,8 +246,8 @@ function getUstensils(recipes) {
 
 function render() {
   renderListItems("ingredients", getIngredients(results));
-  renderListItems("appareils", getAppliances(results));
-  renderListItems("ustensiles", getUstensils(results));
+  renderListItems("appliances", getAppliances(results));
+  renderListItems("ustensils", getUstensils(results));
 
   document.querySelector(".recipes").innerHTML = null;
   results.forEach((result) => {
@@ -265,41 +265,27 @@ function renderListItems(name, items) {
   items.forEach((item) => {
     const capitalizedItem = item.charAt(0).toUpperCase() + item.slice(1);
 
-    switch (name) {
-      case "ingredients":
-        if (tags.ingredients.includes(capitalizedItem)) return;
-        break;
-      case "appareils":
-        if (tags.appliances.includes(capitalizedItem)) return;
-        break;
-      case "ustensiles":
-        if (tags.ustensils.includes(capitalizedItem)) return;
-    }
+    for (const tag in tags) {
+      if (tag === name) {
+        if (tag.includes(capitalizedItem)) return;
 
-    const itemTag = createHtmlTag(
-      "li",
-      { class: "filter__item" },
-      null,
-      capitalizedItem
-    );
-    list.appendChild(itemTag);
+        const itemTag = createHtmlTag(
+          "li",
+          { class: "filter__item" },
+          null,
+          capitalizedItem
+        );
 
-    itemTag.addEventListener("click", (event) => {
-      switch (name) {
-        case "ingredients":
-          addTag(event.target.innerText, color, tags.ingredients);
-          break;
-        case "appareils":
-          addTag(event.target.innerText, color, tags.appliances);
-          break;
-        case "ustensiles":
-          addTag(event.target.innerText, color, tags.ustensils);
+        list.appendChild(itemTag);
+
+        itemTag.addEventListener("mousedown", (event) => {
+          addTag(capitalizedItem, color, tags[name]);
+          results = getResults(search);
+          render();
+          removeListItemWhenAdded(list, capitalizedItem);
+        });
       }
-
-      results = getResults(search);
-      render();
-      removeListItemWhenAdded(list, event.target.innerText);
-    });
+    }
   });
 }
 
@@ -347,56 +333,57 @@ function removeTag(event, currentTags) {
 
 /////
 
-function inputToOriginalState(event) {
-  const { filterTag, input, placeholder } = getTargetInfos(event.target.name);
+function inputToOriginalState(name) {
+  const { filterTag, input, placeholder } = getTargetInfos(name);
 
   input.removeAttribute("readonly");
 
-  event.target.value = "";
-  event.target.style.opacity = "1";
-  event.target.style.width = `100%`;
+  input.value = "";
+  input.style.opacity = "1";
+  input.style.width = `100%`;
 
   filterTag.style.width = `190px`;
   filterTag.style.borderRadius = "5px";
   input.setAttribute("placeholder", placeholder);
+
+  hideList(name);
 }
 
-function inputToFocusState(event) {
-  const { filterTag, input, list, focusedPlaceholder } = getTargetInfos(
-    event.target.name
-  );
+function inputToFocusState(name) {
+  const { filterTag, input, focusedPlaceholder } = getTargetInfos(name);
 
   if (search) input.setAttribute("readonly", true);
 
-  event.target.style.width = "300px";
-  event.target.style.opacity = ".5";
+  input.style.width = "300px";
+  input.style.opacity = ".5";
 
   filterTag.style.width = "300px";
   filterTag.style.borderRadius = "5px";
   input.setAttribute("placeholder", focusedPlaceholder);
 
-  if (!event.target.value && !search && !results.length) return;
+  if (!input.value && !search && !results.length) return;
 
-  displayList(event);
+  displayList(input.name);
 }
 
-function displayList(event) {
-  const { filterTag, list, focusedPlaceholder, dropdownIcon } = getTargetInfos(
-    event.target.name
-  );
+function displayList(name) {
+  const { filterTag, list, input, focusedPlaceholder, dropdownIcon } =
+    getTargetInfos(name);
 
   if (!list.children.length) return;
 
-  // list.style.left = "0";
-  list.style.opacity = "1";
   filterTag.style.borderRadius = "5px 5px 0 0";
 
-  const accurateListWidth = list.getBoundingClientRect().width;
-
   if (list.children.length > 10) {
-    list.style.display = "grid";
+    list.style.display = "inline-grid";
+
+    const accurateListWidth = list.getBoundingClientRect().width;
     filterTag.style.width = `${accurateListWidth}px`;
-    event.target.style.width = `${accurateListWidth}px`;
+    input.style.width = `${accurateListWidth}px`;
+
+    list.children.length > 40
+      ? (list.style.gridTemplateRows = "repeat(20, 1fr)")
+      : (list.style.gridTemplateRows = "repeat(10, 1fr)");
   } else {
     list.style.display = "block";
     list.style.width = "300px";
@@ -406,26 +393,20 @@ function displayList(event) {
     });
 
     filterTag.style.width = "300px";
-    event.target.style.width = "300px";
+    input.style.width = "300px";
   }
 
-  list.children.length > 40
-    ? (list.style.gridTemplateRows = "repeat(20, 1fr)")
-    : (list.style.gridTemplateRows = "repeat(10, 1fr)");
-
-  event.target.setAttribute("placeholder", focusedPlaceholder);
+  input.setAttribute("placeholder", focusedPlaceholder);
 
   dropdownIcon.style.transform = "rotate(180deg)";
 }
 
-function hideList(event) {
-  const { filterTag, list, dropdownIcon } = getTargetInfos(event.target.name);
+function hideList(name) {
+  const { filterTag, list, dropdownIcon } = getTargetInfos(name);
 
   filterTag.style.borderRadius = "5px";
-  list.style.opacity = "0";
-  list.style.display = "grid";
+  list.style.display = "none";
   list.style.width = "unset";
-  // list.style.left = "-9999px";
   dropdownIcon.style.transform = "rotate(0deg)";
 }
 
@@ -438,42 +419,35 @@ document.querySelector(".search__main").addEventListener("input", (event) => {
 });
 
 document.querySelectorAll(".filter__input").forEach((input) => {
-  input.addEventListener("input", (event) => {
-    const search = event.target.value;
+  input.addEventListener("input", () => {
+    input.value ? (input.style.opacity = "1") : (input.style.opacity = ".5");
 
-    search
-      ? (event.target.style.opacity = "1")
-      : (event.target.style.opacity = ".5");
+    let getMethod;
 
-    let { getMethod } = getTargetInfos(event.target.name);
-
-    if (search.length > 2) {
+    if (input.value.length > 2) {
       switch (input.name) {
         case "ingredients":
           getMethod = getIngredients;
           break;
-        case "appareils":
+        case "appliances":
           getMethod = getAppliances;
           break;
-        case "ustensiles":
+        case "ustensils":
           getMethod = getUstensils;
           break;
       }
 
       const filteredResults = getMethod(recipes).filter((result) => {
-        const regex = new RegExp(search, "gi");
+        const regex = new RegExp(input.value, "gi");
         return result.match(regex);
       });
 
-      renderListItems(event.target.name, filteredResults);
-      displayList(event);
+      renderListItems(input.name, filteredResults);
+      displayList(input.name);
     } else {
-      hideList(event);
+      hideList(input.name);
     }
   });
-  input.addEventListener("focus", (event) => inputToFocusState(event));
-  input.addEventListener("blur", (event) => {
-    hideList(event);
-    inputToOriginalState(event);
-  });
+  input.addEventListener("focus", () => inputToFocusState(input.name));
+  input.addEventListener("blur", () => inputToOriginalState(input.name));
 });

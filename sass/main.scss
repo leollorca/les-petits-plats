@@ -165,16 +165,13 @@ header {
       }
 
       &__list {
-        position: absolute;
-        // left: -9999px;
-        display: grid;
+        display: none;
         grid-auto-flow: column;
         grid-template-rows: repeat(10, 1fr);
         column-gap: 40px;
         padding: 0 20px 10px 20px;
         border-radius: 0 0 5px 5px;
         white-space: nowrap;
-        opacity: 0;
       }
 
       &__item {
