@@ -25,86 +25,17 @@ function getResults(search) {
   ].length;
 
   if (!isSearchValid && !isThereTags) return [];
-  if (isSearchValid && isThereTags) return getResultsWithSearchAndTags(search);
-  if (isSearchValid && !isThereTags) return getResultsWithOnlySearch(search);
+
+  if (isSearchValid && isThereTags)
+    return getResultsWithOnlySearch(search, getResultsWithOnlyTags());
+
+  if (isSearchValid && !isThereTags)
+    return getResultsWithOnlySearch(search, recipes);
+
   if (!isSearchValid && isThereTags) return getResultsWithOnlyTags();
 }
 
-function getResultsWithSearchAndTags(search) {
-  results = getResultsWithOnlySearch(search);
-
-  return results.filter((recipe) => {
-    if (
-      tags.ingredients.length &&
-      !tags.appliances.length &&
-      !tags.ustensils.length
-    ) {
-      if (areIngredientsInRecipe(recipe)) {
-        return recipe;
-      }
-    }
-    if (
-      tags.ingredients.length &&
-      tags.appliances.length &&
-      !tags.ustensils.length
-    ) {
-      if (areIngredientsInRecipe(recipe) && areAppliancesInRecipe(recipe)) {
-        return recipe;
-      }
-    }
-    if (
-      tags.ingredients.length &&
-      tags.ustensils.length &&
-      !tags.appliances.length
-    ) {
-      if (areIngredientsInRecipe(recipe) && areUstensilsInRecipe(recipe)) {
-        return recipe;
-      }
-    }
-    if (
-      tags.appliances.length &&
-      !tags.ingredients.length &&
-      !tags.ustensils.length
-    ) {
-      if (areAppliancesInRecipe(recipe)) {
-        return recipe;
-      }
-    }
-    if (
-      tags.appliances.length &&
-      tags.ustensils.length &&
-      !tags.ingredients.length
-    ) {
-      if (areAppliancesInRecipe(recipe) && areUstensilsInRecipe(recipe)) {
-        return recipe;
-      }
-    }
-    if (
-      tags.ustensils.length &&
-      !tags.ingredients.length &&
-      !tags.appliances.length
-    ) {
-      if (areUstensilsInRecipe(recipe)) {
-        return recipe;
-      }
-    }
-    if (
-      tags.ingredients.length &&
-      tags.appliances.length &&
-      tags.ustensils.length
-    ) {
-      if (
-        areIngredientsInRecipe(recipe) &&
-        areAppliancesInRecipe(recipe) &&
-        areUstensilsInRecipe(recipe)
-      ) {
-        return recipe;
-      }
-    }
-  });
-}
-
-function getResultsWithOnlySearch(search) {
+function getResultsWithOnlySearch(search, recipes) {
   return recipes.filter((recipe) => {
     const regex = new RegExp(search, "gi");
     return (
