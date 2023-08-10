@@ -50,9 +50,9 @@ function getResultsWithOnlySearch(search, recipes) {
 
 function getResultsWithOnlyTags() {
   const resultsWithOnly = {
-    ingredients: getResultsWithOnlyIngredients(recipes),
-    appliances: getResultsWithOnlyAppliances(recipes),
-    ustensils: getResultsWithOnlyUstensils(recipes),
+    ingredients: getResultsWithOnlyTypeOfTag("ingredients", recipes),
+    appliances: getResultsWithOnlyTypeOfTag("appliances", recipes),
+    ustensils: getResultsWithOnlyTypeOfTag("ustensils", recipes),
   };
 
   const provisionalResults = [];
@@ -86,25 +86,17 @@ function getResultsWithOnlyTags() {
   }, []);
 }
 
-function getResultsWithOnlyIngredients(recipes) {
-  if (tags.ingredients.length) {
-    return recipes.filter((recipe) => areIngredientsInRecipe(recipe));
+function getResultsWithOnlyTypeOfTag(name, recipes) {
+  for (const tag in tags) {
+    if (tag === name && tags[tag].length) {
+      return recipes.filter((recipe) => {
+        if (tag === "ingredients") return areIngredientsInRecipe(recipe);
+        if (tag === "appliances") return areAppliancesInRecipe(recipe);
+        if (tag === "ustensils") return areUstensilsInRecipe(recipe);
+      });
+    }
+    return [];
   }
-  return [];
-}
-
-function getResultsWithOnlyAppliances(recipes) {
-  if (tags.appliances.length) {
-    return recipes.filter((recipe) => areAppliancesInRecipe(recipe));
-  }
-  return [];
-}
-
-function getResultsWithOnlyUstensils(recipes) {
-  if (tags.ustensils.length) {
-    return recipes.filter((recipe) => areUstensilsInRecipe(recipe));
-  }
-  return [];
 }
 
 function areIngredientsInRecipe(recipe) {
@@ -342,35 +334,28 @@ document.querySelector(".search__main").addEventListener("input", (event) => {
 });
 
 document.querySelectorAll(".filter__input").forEach((input) => {
+  const name = input.name;
   input.addEventListener("input", () => {
     input.value ? (input.style.opacity = "1") : (input.style.opacity = ".5");
 
-    let getMethod;
-
     if (input.value.length > 2) {
-      switch (input.name) {
-        case "ingredients":
-          getMethod = getIngredients;
-          break;
-        case "appliances":
-          getMethod = getAppliances;
-          break;
-        case "ustensils":
-          getMethod = getUstensils;
-          break;
-      }
+      let resultsToFilter;
 
-      const filteredResults = getMethod(recipes).filter((result) => {
+      if (name === "ingredients") resultsToFilter = getIngredients(recipes);
+      if (name === "appliances") resultsToFilter = getAppliances(recipes);
+      if (name === "ustensils") resultsToFilter = getUstensils(recipes);
+
+      const filteredResults = resultsToFilter.filter((result) => {
         const regex = new RegExp(input.value, "gi");
         return result.match(regex);
       });
 
-      renderListItems(input.name, filteredResults);
-      displayList(input.name);
+      renderListItems(name, filteredResults);
+      displayList(name);
     } else {
-      hideList(input.name);
+      hideList(name);
     }
   });
-  input.addEventListener("focus", () => inputToFocusState(input.name));
-  input.addEventListener("blur", () => inputToOriginalState(input.name));
+  input.addEventListener("focus", () => inputToFocusState(name));
+  input.addEventListener("blur", () => inputToOriginalState(name));
 });
