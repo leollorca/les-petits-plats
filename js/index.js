@@ -49,25 +49,17 @@ function getResultsWithOnlySearch(search, recipes) {
 }
 
 function getResultsWithOnlyTags() {
-  const resultsWithOnlyIngredients = getResultsWithOnlyIngredients(recipes);
-  const resultsWithOnlyAppliances = getResultsWithOnlyAppliances(recipes);
-  const resultsWithOnlyUstensils = getResultsWithOnlyUstensils(recipes);
+  const resultsWithOnly = {
+    ingredients: getResultsWithOnlyIngredients(recipes),
+    appliances: getResultsWithOnlyAppliances(recipes),
+    ustensils: getResultsWithOnlyUstensils(recipes),
+  };
 
   const provisionalResults = [];
 
-  if (resultsWithOnlyIngredients.length) {
-    resultsWithOnlyIngredients.forEach((recipe) => {
-      provisionalResults.push({ ...recipe, foundBy: "ingredients" });
-    });
-  }
-  if (resultsWithOnlyAppliances.length) {
-    resultsWithOnlyAppliances.forEach((recipe) => {
-      provisionalResults.push({ ...recipe, foundBy: "appliances" });
-    });
-  }
-  if (resultsWithOnlyUstensils.length) {
-    resultsWithOnlyUstensils.forEach((recipe) => {
-      provisionalResults.push({ ...recipe, foundBy: "ustensils" });
+  for (const result in resultsWithOnly) {
+    resultsWithOnly[result].forEach((recipe) => {
+      provisionalResults.push({ ...recipe, foundBy: result });
     });
   }
 
@@ -198,7 +190,7 @@ function renderListItems(name, items) {
 
     for (const tag in tags) {
       if (tag === name) {
-        if (tag.includes(capitalizedItem)) return;
+        if (tags[tag].includes(capitalizedItem)) return;
 
         const itemTag = createHtmlTag(
           "li",
@@ -209,18 +201,18 @@ function renderListItems(name, items) {
 
         list.appendChild(itemTag);
 
-        itemTag.addEventListener("mousedown", (event) => {
+        itemTag.addEventListener("mousedown", () => {
           addTag(capitalizedItem, color, tags[name]);
           results = getResults(search);
           render();
-          removeListItemWhenAdded(list, capitalizedItem);
+          removeListItemAlreadyChosen(list, capitalizedItem);
         });
       }
     }
   });
 }
 
-function removeListItemWhenAdded(list, listItem) {
+function removeListItemAlreadyChosen(list, listItem) {
   Array.from(list.children).forEach((child) => {
     if (child.innerText === listItem) child.remove();
   });
