@@ -1,6 +1,6 @@
-import createHtmlTag from "./createHtmlTag.js";
+import createHtmlTag from "../js/utils/createHtmlTag.js";
 
-export default function getRecipeCard(recipe) {
+export default function RecipeCard(recipe) {
   const { name, ingredients, time, description } = recipe;
 
   const ingredientsList = ingredients.map((ingredient) => {

@@ -1,7 +1,6 @@
 {
   "name": "les-petits-plats",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "sass": "sass --watch ./sass/main.scss:./css/style.css --style compressed"
@@ -10,7 +9,6 @@
     "type": "git",
     "url": "git+https://github.com/leollorca/les-petits-plats.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/leollorca/les-petits-plats/issues"

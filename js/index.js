@@ -1,8 +1,9 @@
-import { recipes } from "../data/recipes.js";
+import recipes from "../data/recipes.js";
 
 import createHtmlTag from "./utils/createHtmlTag.js";
-import getRecipeCard from "./utils/getRecipeCard.js";
 import getTargetInfos from "./utils/getTargetInfos.js";
+
+import RecipeCard from "../components/RecipeCard.js";
 
 const state = {
   search: "",
@@ -14,175 +15,186 @@ const state = {
   },
 };
 
-let { search, results, tags } = state;
-
 function getResults(search) {
-  const isSearchValid = search && search.length > 2;
+  const isSearchValid = search?.length > 2;
   const isThereTags = [
-    ...tags.ingredients,
-    ...tags.appliances,
-    ...tags.ustensils,
+    ...state.tags.ingredients,
+    ...state.tags.appliances,
+    ...state.tags.ustensils,
   ].length;
 
-  if (!isSearchValid && !isThereTags) return [];
-
-  if (isSearchValid && isThereTags)
-    return getResultsWithOnlySearch(search, getResultsWithOnlyTags());
-
-  if (isSearchValid && !isThereTags)
-    return getResultsWithOnlySearch(search, recipes);
-
-  if (!isSearchValid && isThereTags) return getResultsWithOnlyTags();
+  switch (true) {
+    case !isSearchValid && !isThereTags:
+      return [];
+    case isSearchValid && isThereTags:
+      return getResultsWithOnlySearch(search, getResultsWithOnlyTags());
+    case isSearchValid && !isThereTags:
+      return getResultsWithOnlySearch(search, recipes);
+    case !isSearchValid && isThereTags:
+      return getResultsWithOnlyTags();
+  }
 }
 
 function getResultsWithOnlySearch(search, recipes) {
   return recipes.filter((recipe) => {
-    const regex = new RegExp(search, "gi");
     return (
-      recipe.name.match(regex) ||
-      recipe.description.match(regex) ||
+      recipe.name.match(new RegExp(search, "gi")) ||
+      recipe.description.match(new RegExp(search, "gi")) ||
       recipe.ingredients.some((ingredient) =>
-        ingredient.ingredient.match(regex)
+        ingredient.ingredient.match(new RegExp(search, "gi"))
       )
     );
   });
 }
 
 function getResultsWithOnlyTags() {
-  const resultsWithOnly = {
-    ingredients: getResultsWithOnlyTypeOfTag("ingredients", recipes),
-    appliances: getResultsWithOnlyTypeOfTag("appliances", recipes),
-    ustensils: getResultsWithOnlyTypeOfTag("ustensils", recipes),
+  const resultsWithOnlyOneTypeOfTag = {
+    ingredients: getResultsWithOnlyOneTypeOfTag("ingredients", recipes),
+    appliances: getResultsWithOnlyOneTypeOfTag("appliances", recipes),
+    ustensils: getResultsWithOnlyOneTypeOfTag("ustensils", recipes),
   };
 
   const provisionalResults = [];
 
-  for (const result in resultsWithOnly) {
-    resultsWithOnly[result].forEach((recipe) => {
-      provisionalResults.push({ ...recipe, foundBy: result });
+  for (const type in resultsWithOnlyOneTypeOfTag) {
+    resultsWithOnlyOneTypeOfTag[type].forEach((recipe) => {
+      provisionalResults.push({ ...recipe, foundBy: type });
     });
   }
 
-  const typeOfFirstResult = provisionalResults[0].foundBy;
-  const isThereOneTypeOfResult = provisionalResults.every((recipe) => {
-    return recipe.foundBy === typeOfFirstResult;
+  const isThereOneType = provisionalResults.every((recipe) => {
+    return recipe.foundBy === provisionalResults[0].foundBy;
   });
 
-  if (isThereOneTypeOfResult) return provisionalResults;
+  if (isThereOneType) {
+    return provisionalResults;
+  }
 
-  return provisionalResults.reduce((acc, recipe, index, array) => {
-    let count = 0;
+  return provisionalResults.reduce((results, recipe) => {
+    const isInMoreThanOnce = provisionalResults.filter(
+      (element) => element.id === recipe.id
+    ).length;
 
-    array.forEach((element) => element.id === recipe.id && count++);
+    if (isInMoreThanOnce) {
+      const isAlreadyIn = results.some((element) => element.id === recipe.id);
 
-    if (count > 1) {
-      const isThereRecipeAlreadyInAcc = acc.some((element) => {
-        return element.id === recipe.id;
-      });
-
-      if (!isThereRecipeAlreadyInAcc) acc.push(recipe);
+      if (!isAlreadyIn) {
+        results.push(recipe);
+      }
     }
-    return acc;
+
+    return results;
   }, []);
 }
 
-function getResultsWithOnlyTypeOfTag(name, recipes) {
-  for (const tag in tags) {
-    if (tag === name && tags[tag].length) {
+function getResultsWithOnlyOneTypeOfTag(name, recipes) {
+  for (const tag in state.tags) {
+    if (tag === name && state.tags[tag].length) {
       return recipes.filter((recipe) => {
-        if (tag === "ingredients") return areIngredientsInRecipe(recipe);
-        if (tag === "appliances") return areAppliancesInRecipe(recipe);
-        if (tag === "ustensils") return areUstensilsInRecipe(recipe);
+        switch (tag) {
+          case "ingredients":
+            return areIngredientsInRecipe(recipe);
+          case "appliances":
+            return areAppliancesInRecipe(recipe);
+          case "ustensils":
+            return areUstensilsInRecipe(recipe);
+        }
       });
     }
+
     return [];
   }
 }
 
 function areIngredientsInRecipe(recipe) {
-  return tags.ingredients.every((ingredient) => {
+  return state.tags.ingredients.every((ingredient) => {
     const formattedIngredients = recipe.ingredients.map((ingredient) => {
       return ingredient.ingredient.toLowerCase();
     });
+
     return formattedIngredients.includes(ingredient.toLowerCase());
   });
 }
 
 function areAppliancesInRecipe(recipe) {
-  return tags.appliances.every((appliance) => {
-    const formattedAppliance = recipe.appliance.toLowerCase();
-    return formattedAppliance === appliance.toLowerCase();
+  return state.tags.appliances.every((appliance) => {
+    return recipe.appliance.toLowerCase() === appliance.toLowerCase();
   });
 }
 
 function areUstensilsInRecipe(recipe) {
-  return tags.ustensils.every((ustensil) => {
+  return state.tags.ustensils.every((ustensil) => {
     const formattedUstensils = recipe.ustensils.map((ustensil) => {
       return ustensil.toLowerCase();
     });
+
     return formattedUstensils.includes(ustensil.toLowerCase());
   });
 }
 
 function getIngredients(recipes) {
-  return recipes.reduce((acc, recipe) => {
+  return recipes.reduce((ingredients, recipe) => {
     recipe.ingredients.forEach((ingredient) => {
-      if (!acc.includes(ingredient.ingredient.toLowerCase())) {
-        acc.push(ingredient.ingredient.toLowerCase());
+      if (!ingredients.includes(ingredient.ingredient.toLowerCase())) {
+        ingredients.push(ingredient.ingredient.toLowerCase());
       }
     });
-    return acc;
+
+    return ingredients;
   }, []);
 }
 
 function getAppliances(recipes) {
-  return recipes.reduce((acc, recipe) => {
-    if (!acc.includes(recipe.appliance.toLowerCase())) {
-      acc.push(recipe.appliance.toLowerCase());
+  return recipes.reduce((appliances, recipe) => {
+    if (!appliances.includes(recipe.appliance.toLowerCase())) {
+      appliances.push(recipe.appliance.toLowerCase());
     }
-    return acc;
+
+    return appliances;
   }, []);
 }
 
 function getUstensils(recipes) {
-  return recipes.reduce((acc, recipe) => {
+  return recipes.reduce((ustensils, recipe) => {
     if (typeof recipe.ustensils === "object") {
       recipe.ustensils.forEach((ustensil) => {
-        if (!acc.includes(ustensil.toLowerCase())) {
-          acc.push(ustensil.toLowerCase());
+        if (!ustensils.includes(ustensil.toLowerCase())) {
+          ustensils.push(ustensil.toLowerCase());
         }
       });
     } else {
-      acc.push(recipe.ustensils.toLowerCase());
+      ustensils.push(recipe.ustensils.toLowerCase());
     }
-    return acc;
+
+    return ustensils;
   }, []);
 }
 
 function render() {
-  renderListItems("ingredients", getIngredients(results));
-  renderListItems("appliances", getAppliances(results));
-  renderListItems("ustensils", getUstensils(results));
+  renderListItems("ingredients", getIngredients(state.results));
+  renderListItems("appliances", getAppliances(state.results));
+  renderListItems("ustensils", getUstensils(state.results));
 
   document.querySelector(".recipes").innerHTML = null;
-  results.forEach((result) => {
-    document.querySelector(".recipes").appendChild(getRecipeCard(result));
+
+  state.results.forEach((result) => {
+    document.querySelector(".recipes").appendChild(RecipeCard(result));
   });
 }
 
 function renderListItems(name, items) {
-  let { color, list } = getTargetInfos(name);
+  const { color, list } = getTargetInfos(name);
 
   list.innerHTML = null;
 
-  if (results.length === 1 || !items.length) return;
+  if (state.results.length === 1 || !items.length) return;
 
   items.forEach((item) => {
     const capitalizedItem = item.charAt(0).toUpperCase() + item.slice(1);
 
-    for (const tag in tags) {
+    for (const tag in state.tags) {
       if (tag === name) {
-        if (tags[tag].includes(capitalizedItem)) return;
+        if (state.tags[tag].includes(capitalizedItem)) return;
 
         const itemTag = createHtmlTag(
           "li",
@@ -194,8 +206,8 @@ function renderListItems(name, items) {
         list.appendChild(itemTag);
 
         itemTag.addEventListener("mousedown", () => {
-          addTag(capitalizedItem, color, tags[name]);
-          results = getResults(search);
+          addTag(capitalizedItem, color, state.tags[name]);
+          state.results = getResults(state.search);
           render();
           removeListItemAlreadyChosen(list, capitalizedItem);
         });
@@ -210,15 +222,15 @@ function removeListItemAlreadyChosen(list, listItem) {
   });
 }
 
-function addTag(tagContent, color, currentTags) {
+function addTag(content, color, tags) {
   const tagCrossIcon = createHtmlTag("img", {
     class: "tag__icon",
     src: "./assets/icons/cross.svg",
   });
 
   tagCrossIcon.addEventListener("click", (event) => {
-    removeTag(event, currentTags);
-    results = getResults(search);
+    removeTag(event, tags);
+    state.results = getResults(state.search);
     render();
     if (!document.querySelector(".search__tags").innerHTML) {
       document.querySelector(".search__tags").style.display = "none";
@@ -231,19 +243,20 @@ function addTag(tagContent, color, currentTags) {
       "div",
       { class: "tag", style: `background:${color};` },
       null,
-      tagContent,
+      content,
       tagCrossIcon
     )
   );
   tagsContainer.style.display = "flex";
 
-  currentTags.push(tagContent);
+  tags.push(content);
 }
 
-function removeTag(event, currentTags) {
+function removeTag(event, tags) {
   event.target.parentNode.remove();
-  const indexOfTag = currentTags.indexOf(event.target.parentNode.innerText);
-  currentTags.splice(indexOfTag, 1);
+
+  const indexOfTag = tags.indexOf(event.target.parentNode.innerText);
+  tags.splice(indexOfTag, 1);
 }
 
 /////
@@ -252,14 +265,13 @@ function inputToOriginalState(name) {
   const { filterTag, input, placeholder } = getTargetInfos(name);
 
   input.removeAttribute("readonly");
-
+  input.setAttribute("placeholder", placeholder);
   input.value = "";
   input.style.opacity = "1";
   input.style.width = `100%`;
 
   filterTag.style.width = `190px`;
   filterTag.style.borderRadius = "5px";
-  input.setAttribute("placeholder", placeholder);
 
   hideList(name);
 }
@@ -267,16 +279,17 @@ function inputToOriginalState(name) {
 function inputToFocusState(name) {
   const { filterTag, input, focusedPlaceholder } = getTargetInfos(name);
 
-  if (search) input.setAttribute("readonly", true);
-
+  if (state.search) {
+    input.setAttribute("readonly", true);
+  }
+  input.setAttribute("placeholder", focusedPlaceholder);
   input.style.width = "300px";
   input.style.opacity = ".5";
 
   filterTag.style.width = "300px";
   filterTag.style.borderRadius = "5px";
-  input.setAttribute("placeholder", focusedPlaceholder);
 
-  if (!input.value && !search && !results.length) return;
+  if (!input.value && !state.search && !state.results.length) return;
 
   displayList(input.name);
 }
@@ -328,26 +341,34 @@ function hideList(name) {
 /////
 
 document.querySelector(".search__main").addEventListener("input", (event) => {
-  search = event.target.value;
-  results = getResults(search);
+  state.search = event.target.value;
+  state.results = getResults(state.search);
   render();
 });
 
 document.querySelectorAll(".filter__input").forEach((input) => {
   const name = input.name;
+
   input.addEventListener("input", () => {
     input.value ? (input.style.opacity = "1") : (input.style.opacity = ".5");
 
     if (input.value.length > 2) {
       let resultsToFilter;
 
-      if (name === "ingredients") resultsToFilter = getIngredients(recipes);
-      if (name === "appliances") resultsToFilter = getAppliances(recipes);
-      if (name === "ustensils") resultsToFilter = getUstensils(recipes);
+      switch (name) {
+        case "ingredients":
+          resultsToFilter = getIngredients(recipes);
+          break;
+        case "appliances":
+          resultsToFilter = getAppliances(recipes);
+          break;
+        case "ustensils":
+          resultsToFilter = getUstensils(recipes);
+          break;
+      }
 
       const filteredResults = resultsToFilter.filter((result) => {
-        const regex = new RegExp(input.value, "gi");
-        return result.match(regex);
+        return result.match(new RegExp(input.value, "gi"));
       });
 
       renderListItems(name, filteredResults);
