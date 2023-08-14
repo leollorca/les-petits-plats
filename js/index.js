@@ -5,6 +5,11 @@ import getTargetInfos from "./utils/getTargetInfos.js";
 
 import RecipeCard from "../components/RecipeCard.js";
 
+const UI = {
+  recipesTag: document.querySelector(".recipes"),
+  tagsContainer: document.querySelector(".search__tags"),
+};
+
 const state = {
   search: "",
   results: [],
@@ -16,22 +21,24 @@ const state = {
 };
 
 function getResults(search) {
-  const isSearchValid = search?.length > 2;
+  const isSearchValid = search.length > 2;
   const isThereTags = [
     ...state.tags.ingredients,
     ...state.tags.appliances,
     ...state.tags.ustensils,
   ].length;
 
-  switch (true) {
-    case !isSearchValid && !isThereTags:
-      return [];
-    case isSearchValid && isThereTags:
-      return getResultsWithOnlySearch(search, getResultsWithOnlyTags());
-    case isSearchValid && !isThereTags:
-      return getResultsWithOnlySearch(search, recipes);
-    case !isSearchValid && isThereTags:
-      return getResultsWithOnlyTags();
+  if (!isSearchValid && !isThereTags) {
+    return [];
+  }
+  if (isSearchValid && isThereTags) {
+    return getResultsWithOnlySearch(search, getResultsWithOnlyTags());
+  }
+  if (isSearchValid && !isThereTags) {
+    return getResultsWithOnlySearch(search, recipes);
+  }
+  if (!isSearchValid && isThereTags) {
+    return getResultsWithOnlyTags();
   }
 }
 
@@ -175,10 +182,23 @@ function render() {
   renderListItems("appliances", getAppliances(state.results));
   renderListItems("ustensils", getUstensils(state.results));
 
-  document.querySelector(".recipes").innerHTML = null;
+  UI.recipesTag.innerHTML = null;
+
+  if (state.search.length > 2 && !state.results.length) {
+    UI.recipesTag.appendChild(
+      createHtmlTag(
+        "p",
+        { class: "recipes__no-results" },
+        `Aucune recette ne contient "<strong>${state.search}</strong>", ` +
+          `essayez par exemple «tarte aux pommes », « poisson », etc.`
+      )
+    );
+
+    return;
+  }
 
   state.results.forEach((result) => {
-    document.querySelector(".recipes").appendChild(RecipeCard(result));
+    UI.recipesTag.appendChild(RecipeCard(result));
   });
 }
 
@@ -232,13 +252,12 @@ function addTag(content, color, tags) {
     removeTag(event, tags);
     state.results = getResults(state.search);
     render();
-    if (!document.querySelector(".search__tags").innerHTML) {
-      document.querySelector(".search__tags").style.display = "none";
+    if (!UI.tagsContainer.innerHTML) {
+      UI.tagsContainer.style.display = "none";
     }
   });
 
-  const tagsContainer = document.querySelector(".search__tags");
-  tagsContainer.appendChild(
+  UI.tagsContainer.appendChild(
     createHtmlTag(
       "div",
       { class: "tag", style: `background:${color};` },
@@ -247,7 +266,7 @@ function addTag(content, color, tags) {
       tagCrossIcon
     )
   );
-  tagsContainer.style.display = "flex";
+  UI.tagsContainer.style.display = "flex";
 
   tags.push(content);
 }
@@ -337,8 +356,6 @@ function hideList(name) {
   list.style.width = "unset";
   dropdownIcon.style.transform = "rotate(0deg)";
 }
-
-/////
 
 document.querySelector(".search__main").addEventListener("input", (event) => {
   state.search = event.target.value;

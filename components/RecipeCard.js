@@ -1,7 +1,7 @@
 import createHtmlTag from "../js/utils/createHtmlTag.js";
 
 export default function RecipeCard(recipe) {
-  const { name, ingredients, time, description } = recipe;
+  const { name, ingredients, time, description, image } = recipe;
 
   const ingredientsList = ingredients.map((ingredient) => {
     const quantity = ingredient.quantity ? `: ${ingredient.quantity}` : "";
@@ -10,12 +10,12 @@ export default function RecipeCard(recipe) {
   });
 
   const cardContent = `
-    <div class="recipe__img"></div>
+    <img class="recipe__img" src="../assets/images/${image}" />
     <div class="recipe__description">
       <div class="recipe__description__top">
         <h2>${name}</h2>
         <span class="time">
-          <img src="./assets/icons/montre.svg" />
+          <img src="../assets/icons/montre.svg" />
           ${time} min
         </span>
       </div>

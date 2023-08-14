@@ -201,9 +201,20 @@ header {
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
   margin-top: 40px;
+
+  &__no-results {
+    position: absolute;
+    padding: 6px 10px;
+    color: $red;
+    border: 1px solid $red;
+    border-radius: 4px;
+    background-color: rgba(237, 100, 84, 0.2);
+  }
 }
 
 .recipe {
+  display: flex;
+  flex-direction: column;
   width: 386px;
   height: 386px;
 
@@ -212,6 +223,7 @@ header {
     height: 50%;
     border-radius: 5px 5px 0 0;
     background-color: $dark-grey;
+    object-fit: cover;
   }
 
   &__description {
