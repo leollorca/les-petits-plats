@@ -3,7 +3,7 @@ import recipes from "../data/recipes.js";
 import createHtmlTag from "./utils/createHtmlTag.js";
 import getTargetInfos from "./utils/getTargetInfos.js";
 
-import RecipeCard from "../components/RecipeCard.js";
+import RecipeCard from "./components/RecipeCard.js";
 
 const UI = {
   recipesTag: document.querySelector(".recipes"),
