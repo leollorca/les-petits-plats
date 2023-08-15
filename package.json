@@ -14,5 +14,7 @@
     "url": "https://github.com/leollorca/les-petits-plats/issues"
   },
   "homepage": "https://github.com/leollorca/les-petits-plats#readme",
-  "dependencies": {}
+  "dependencies": {
+    "sass": "^1.65.1"
+  }
 }
