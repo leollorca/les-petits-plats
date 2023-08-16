@@ -16,6 +16,6 @@
   },
   "homepage": "https://github.com/leollorca/les-petits-plats#readme",
   "devDependencies": {
-    "sass": "^1.65.1"
+    "sass": "1.65.1"
   }
 }
