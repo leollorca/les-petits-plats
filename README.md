@@ -9,6 +9,6 @@ Data is provided by OpenClassrooms so it's normal if sometimes, pictures don't m
 
 ## Usage
 
-`npm run sass`
+`npm run build`
 
 ### Hope you'll enjoy!
