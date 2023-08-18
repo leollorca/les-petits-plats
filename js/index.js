@@ -56,15 +56,15 @@ function getResultsWithOnlySearch(search, recipes) {
 
 function getResultsWithOnlyTags() {
   const resultsWithOnlyOneTypeOfTag = {
-    ingredients: getResultsWithOnlyOneTypeOfTag("ingredients", recipes),
-    appliances: getResultsWithOnlyOneTypeOfTag("appliances", recipes),
-    ustensils: getResultsWithOnlyOneTypeOfTag("ustensils", recipes),
+    ingredients: getResultsWithOnlyOneTypeOfTag("ingredients"),
+    appliances: getResultsWithOnlyOneTypeOfTag("appliances"),
+    ustensils: getResultsWithOnlyOneTypeOfTag("ustensils"),
   };
 
   const provisionalResults = [];
 
   for (const type in resultsWithOnlyOneTypeOfTag) {
-    resultsWithOnlyOneTypeOfTag[type]?.forEach((recipe) => {
+    resultsWithOnlyOneTypeOfTag[type].forEach((recipe) => {
       provisionalResults.push({ ...recipe, foundBy: type });
     });
   }
@@ -100,21 +100,17 @@ function getResultsWithOnlyTags() {
   }, []);
 }
 
-function getResultsWithOnlyOneTypeOfTag(name, recipes) {
-  for (const tag in state.tags) {
-    if (tag === name && state.tags[tag].length) {
-      return recipes.filter((recipe) => {
-        switch (tag) {
-          case "ingredients":
-            return areIngredientsInRecipe(recipe);
-          case "appliances":
-            return areAppliancesInRecipe(recipe);
-          case "ustensils":
-            return areUstensilsInRecipe(recipe);
-        }
-      });
+function getResultsWithOnlyOneTypeOfTag(name) {
+  return recipes.filter((recipe) => {
+    switch (name) {
+      case "ingredients":
+        return areIngredientsInRecipe(recipe);
+      case "appliances":
+        return areAppliancesInRecipe(recipe);
+      case "ustensils":
+        return areUstensilsInRecipe(recipe);
     }
-  }
+  });
 }
 
 function areIngredientsInRecipe(recipe) {
