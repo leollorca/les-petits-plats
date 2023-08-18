@@ -64,25 +64,31 @@ function getResultsWithOnlyTags() {
   const provisionalResults = [];
 
   for (const type in resultsWithOnlyOneTypeOfTag) {
-    resultsWithOnlyOneTypeOfTag[type].forEach((recipe) => {
+    resultsWithOnlyOneTypeOfTag[type]?.forEach((recipe) => {
       provisionalResults.push({ ...recipe, foundBy: type });
     });
   }
 
-  const isThereOneType = provisionalResults.every((recipe) => {
-    return recipe.foundBy === provisionalResults[0].foundBy;
-  });
+  const howManyTypesAreThere = provisionalResults.reduce((types, recipe) => {
+    if (!types.includes(recipe.foundBy)) {
+      types.push(recipe.foundBy);
+    }
 
-  if (isThereOneType) {
+    return types;
+  }, []);
+
+  if (howManyTypesAreThere.length === 1) {
     return provisionalResults;
   }
 
   return provisionalResults.reduce((results, recipe) => {
-    const isInMoreThanOnce = provisionalResults.filter(
+    const checker = howManyTypesAreThere.length === 2 ? 1 : 2;
+
+    const howManyTimesIsIn = provisionalResults.filter(
       (element) => element.id === recipe.id
     ).length;
 
-    if (isInMoreThanOnce) {
+    if (howManyTimesIsIn > checker) {
       const isAlreadyIn = results.some((element) => element.id === recipe.id);
 
       if (!isAlreadyIn) {
@@ -108,8 +114,6 @@ function getResultsWithOnlyOneTypeOfTag(name, recipes) {
         }
       });
     }
-
-    return [];
   }
 }
 
