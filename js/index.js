@@ -102,40 +102,20 @@ function getResultsWithOnlyTags() {
 
 function getResultsWithOnlyOneTypeOfTag(name) {
   return recipes.filter((recipe) => {
-    switch (name) {
-      case "ingredients":
-        return areIngredientsInRecipe(recipe);
-      case "appliances":
-        return areAppliancesInRecipe(recipe);
-      case "ustensils":
-        return areUstensilsInRecipe(recipe);
-    }
-  });
-}
-
-function areIngredientsInRecipe(recipe) {
-  return state.tags.ingredients.every((ingredient) => {
-    const formattedIngredients = recipe.ingredients.map((ingredient) => {
-      return ingredient.ingredient.toLowerCase();
+    return state.tags[name].every((item) => {
+      switch (name) {
+        case "ingredients":
+          return recipe.ingredients
+            .map((ingredient) => ingredient.ingredient.toLowerCase())
+            .includes(item.toLowerCase());
+        case "appliances":
+          return recipe.appliance.toLowerCase() === item.toLowerCase();
+        case "ustensils":
+          return recipe.ustensils
+            .map((ustensil) => ustensil.toLowerCase())
+            .includes(item.toLowerCase());
+      }
     });
-
-    return formattedIngredients.includes(ingredient.toLowerCase());
-  });
-}
-
-function areAppliancesInRecipe(recipe) {
-  return state.tags.appliances.every((appliance) => {
-    return recipe.appliance.toLowerCase() === appliance.toLowerCase();
-  });
-}
-
-function areUstensilsInRecipe(recipe) {
-  return state.tags.ustensils.every((ustensil) => {
-    const formattedUstensils = recipe.ustensils.map((ustensil) => {
-      return ustensil.toLowerCase();
-    });
-
-    return formattedUstensils.includes(ustensil.toLowerCase());
   });
 }
 
