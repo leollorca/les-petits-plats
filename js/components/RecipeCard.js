@@ -10,12 +10,12 @@ export default function RecipeCard(recipe) {
   });
 
   const cardContent = `
-    <img class="recipe__img" src="../assets/images/${image}" />
+    <img class="recipe__img" src="../assets/images/${image}" alt="${name}"/>
     <div class="recipe__description">
       <div class="recipe__description__top">
         <h2>${name}</h2>
         <span class="time">
-          <img src="../assets/icons/montre.svg" />
+          <img src="../assets/icons/montre.svg" alt="chronomètre"/>
           ${time} min
         </span>
       </div>
